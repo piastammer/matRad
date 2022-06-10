@@ -57,8 +57,8 @@ if isfield(pln,'propMC') && isfield(pln.propMC,'config')
         topasConfig = pln.propMC.config;
     else 
         %Create a default instance of the configuration
-        topasConfig = MatRad_TopasConfig();
-        
+            topasConfig = MatRad_TopasConfig();
+        end
         %Overwrite parameters
         %mc = metaclass(topasConfig); %get metaclass information to check if we can overwrite properties
         

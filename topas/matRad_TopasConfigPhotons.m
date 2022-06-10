@@ -3,17 +3,48 @@ classdef matRad_TopasConfigPhotons < MatRad_TopasConfig
     %   Detailed explanation goes here
 
     properties
+        
         modules = {'g4em-standard_opt4'};
-
-        infilenames = struct('geometry','TOPAS_matRad_geometry.txt.in',...
+                
+        infilenames_photon = struct('geometry','TOPAS_matRad_geometry.txt.in',...
             'surfaceScorer','TOPAS_scorer_surfaceIC.txt.in',...
             'doseScorer','TOPAS_scorer_dose.txt.in',...
             'schneider_materialsOnly','TOPAS_SchneiderConverterMaterialsOnly.txt.in',...
             'schneider_full','TOPAS_SchneiderConverter.txt.in',...
-            'virtualGaussian','TOPAS_beamSetup_photonVirtualGaussian.txt.in');
+            'virtualGaussian','TOPAS_beamSetup_virtualGaussian.txt.in',...
+            'mlc','TOPAS_beamSetup_mlc.txt.in' );
     end
 
-    methods
+    methods 
+        function obj = MatRad_TopasConfigPhotons()
+            %MatRad_MCsquareConfig Construct configuration Class for TOPAS
+            %   Default execution paths are set here
+            
+            obj.thisFolder = fileparts(mfilename('fullpath'));
+            
+            obj.workingDir = [obj.thisFolder filesep 'MCrun' filesep];
+            
+            %Let's set some default commands taken from topas installation
+            %instructions for mac & debain/ubuntu
+            if ispc %We assume topas is installed in wsl (since no windows version)
+                obj.topasExecCommand = 'wsl export TOPAS_G4_DATA_DIR=~/G4Data; ~/topas/bin/topas';
+                %obj.topasExecCommand = 'wsl export TOPAS_G4_DATA_DIR=~/G4Data; export LD_LIBRARY_PATH=~/topas/libexternal/:$LD_LIBRARY_PATH; ~/topas/topas';<-- for Pia's laptop uncomment
+            elseif ismac
+                obj.topasExecCommand = 'export TOPAS_G4_DATA_DIR=/Applications/G4Data; export QT_QPA_PLATFORM_PLUGIN_PATH=/Applications/topas/Frameworks; /Applications/topas/bin/topas';
+            elseif isunix
+                obj.topasExecCommand = 'export TOPAS_G4_DATA_DIR=~/G4Data; ~/topas/bin/topas';
+            else
+                obj.topasExecCommand = '';
+            end               
+            
+            %Read some default values from configuration class            
+            matRad_cfg = MatRad_Config.instance(); %Instance of matRad configuration class
+            
+            obj.materialConversion = matRad_cfg.propMC.topas_materialConversion; 
+            obj.rsp_basematerial = matRad_cfg.propMC.topas_rsp_basematerial;
+            
+        end
+        
         function writeFieldHeader(obj,fID,fieldIx)
             matRad_cfg = MatRad_Config.instance(); %Instance of matRad configuration class
             
@@ -29,7 +60,7 @@ classdef matRad_TopasConfigPhotons < MatRad_TopasConfig
             fprintf(fID,'includeFile = %s\n',obj.outfilenames.patientParam);
             fprintf(fID,'\n');
             
-            fname = fullfile(obj.thisFolder,obj.infilenames.geometry);
+            fname = fullfile(obj.thisFolder,obj.infilenames_photon.geometry);
             matRad_cfg.dispInfo('Reading Geometry from %s\n',fname);
             world = fileread(fname);
             fprintf(fID,'%s\n\n',world);
@@ -46,27 +77,14 @@ classdef matRad_TopasConfigPhotons < MatRad_TopasConfig
                 otherwise
                     matRad_cfg.dispError('Invalid history setting!');
             end
-
-            machine = baseData.machine;
+            
             
             %Preread beam setup
             switch obj.beamProfile
                 case 'virtualGaussian'
-                    fname = fullfile(obj.thisFolder,obj.infilenames.virtualGaussian);
+                    fname = fullfile(obj.thisFolder,obj.infilenames_photon.virtualGaussian);
                     TOPAS_beamSetup = fileread(fname);
                     matRad_cfg.dispInfo('Reading ''%s'' Beam Characteristics from ''%s''\n',obj.beamProfile,fname);
-
-                    % gaussian filter to model penumbra from (measured) machine output / see diploma thesis siggel 4.1.2
-                    if isfield(machine.data,'penumbraFWHMatIso')
-                        penumbraFWHM = machine.data.penumbraFWHMatIso;
-                    else
-                        penumbraFWHM = 5;
-                        matRad_cfg.dispWarning('photon machine file does not contain measured penumbra width in machine.data.penumbraFWHMatIso. Assuming 5 mm.');
-                    end
-
-                    sourceFWHM = penumbraFWHM * machine.meta.SCD/(machine.meta.SAD - machine.meta.SCD);
-                    sourceSigma = sourceFWHM / sqrt(8*log(2)); % [mm]
-
 
                 otherwise
                     matRad_cfg.dispError('Beam Type ''%s'' not supported for photons',obj.beamProfile);
@@ -75,7 +93,6 @@ classdef matRad_TopasConfigPhotons < MatRad_TopasConfig
             for beamIx = 1:length(stf)
                 
                 SAD = stf(beamIx).SAD;                
-                SCD = stf(beamIx).SCD;
 
                 sourceToNozzleDistance = 0;                                              
        
@@ -98,7 +115,7 @@ classdef matRad_TopasConfigPhotons < MatRad_TopasConfig
             end
         end
 
-        function writeStfFields(obj,ct,stf,baseData,w)
+        function writeStfFields(obj,ct,stf,pln,baseData,w)
             matRad_cfg = MatRad_Config.instance(); %Instance of matRad configuration class
             
             %snippet for future dij simulation
@@ -118,7 +135,7 @@ classdef matRad_TopasConfigPhotons < MatRad_TopasConfig
                 
             
             nParticlesTotalBixel = round(1e6*w);
-            %nParticlesTotal = sum(nParticlesTotalBixel);
+            nParticlesTotal = sum(nParticlesTotalBixel);
             maxParticlesBixel = 1e6*max(w(:));
             minParticlesBixel = round(max([obj.minRelWeight*maxParticlesBixel,1]));
             
@@ -132,49 +149,59 @@ classdef matRad_TopasConfigPhotons < MatRad_TopasConfig
             end
                       
             nParticlesTotal = 0;
-
-            machine = baseData.machine;
             
             %Preread beam setup
             switch obj.beamProfile
                 case 'virtualGaussian'
-                    fname = fullfile(obj.thisFolder,obj.infilenames.beam_generic);
+                    fname = fullfile(obj.thisFolder,obj.infilenames_photon.virtualGaussian);
                     TOPAS_beamSetup = fileread(fname);
-                    matRad_cfg.dispInfo('Reading ''%s'' Beam Characteristics from ''%s''\n',obj.beamProfile,fname);
-
-                    % gaussian filter to model penumbra from (measured) machine output / see diploma thesis siggel 4.1.2
-                    if isfield(machine.data,'penumbraFWHMatIso')
-                        penumbraFWHM = machine.data.penumbraFWHMatIso;
-                    else
-                        penumbraFWHM = 5;
-                        matRad_cfg.dispWarning('photon machine file does not contain measured penumbra width in machine.data.penumbraFWHMatIso. Assuming 5 mm.');
-                    end
-
-                    sourceFWHM = penumbraFWHM * machine.meta.SCD/(machine.meta.SAD - machine.meta.SCD);
-                    sourceSigma = sourceFWHM / sqrt(8*log(2)); % [mm]
-
+                    matRad_cfg.dispInfo('Reading ''%s'' Beam Characteristics from ''%s''\n',obj.beamProfile,fname)
 
                 otherwise
                     matRad_cfg.dispError('Beam Type ''%s'' not supported for photons',obj.beamProfile);
+            end
+        
+            if isfield(stf(1).ray, 'shapes')
+                fname = fullfile(obj.thisFolder,obj.infilenames_photon.mlc);
+                TOPAS_mlcSetup = fileread(fname);
             end
             
             for beamIx = 1:length(stf)
                 
                 SAD = stf(beamIx).SAD;                
-                SCD = stf(beamIx).SCD;
 
-                sourceToNozzleDistance = 0;                                              
+                sourceToNozzleDistance = 0;
+                nozzleToAxisDistance = SAD;
        
-                %get beamlet properties for each bixel in the stf and write
+                 %get beamlet properties for each bixel in the stf and write
                 %it into dataTOPAS
                 currentBixel = 1;
+                cutNumOfBixel = 0;
+                nBeamParticlesTotal(beamIx) = 0;
+                
+                collectBixelIdx = [];
                 
                 %Loop over rays and then over spots on ray
                 for rayIx = 1:stf(beamIx).numOfRays
                     for bixelIx = 1:stf(beamIx).numOfBixelsPerRay(rayIx)
-                                              
                         
+                        nCurrentParticles = nParticlesTotalBixel(currentBixel);
                         
+                        % check whether there are (enough) particles for beam delivery
+                        if (nCurrentParticles>minParticlesBixel)
+                            
+                            collectBixelIdx(end+1) = bixelIx;
+                            cutNumOfBixel = cutNumOfBixel + 1;
+                            bixelEnergy = stf(beamIx).ray(rayIx).energy;
+                            
+                            voxel_x = -stf(beamIx).ray(rayIx).rayPos_bev(3);
+                            voxel_y = stf(beamIx).ray(rayIx).rayPos_bev(1);
+                            
+                            dataTOPAS(cutNumOfBixel).posX = -1.*voxel_x;
+                            dataTOPAS(cutNumOfBixel).posY = voxel_y;
+                            
+                            dataTOPAS(cutNumOfBixel).current = uint32(obj.fracHistories*nCurrentParticles / obj.numOfRuns);
+ 
                             if obj.pencilBeamScanning
                                 % angleX corresponds to the rotation around the X axis necessary to move the spot in the Y direction
                                 % angleY corresponds to the rotation around the Y' axis necessary to move the spot in the X direction
@@ -184,13 +211,20 @@ classdef matRad_TopasConfigPhotons < MatRad_TopasConfig
                                 dataTOPAS(cutNumOfBixel).posX = (dataTOPAS(cutNumOfBixel).posX / SAD)*(SAD-nozzleToAxisDistance);
                                 dataTOPAS(cutNumOfBixel).posY = (dataTOPAS(cutNumOfBixel).posY / SAD)*(SAD-nozzleToAxisDistance);
                             end
-              
+
+                            dataTOPAS(cutNumOfBixel).energy = bixelEnergy;
+                            dataTOPAS(cutNumOfBixel).energySpread = 0;
+                                                  
+                            nBeamParticlesTotal(beamIx) = nBeamParticlesTotal(beamIx) + nCurrentParticles;
+                            
+                            
                         end
                         
                         currentBixel = currentBixel + 1;
                         
                     end
                 end
+        
                                 
                 nParticlesTotal = nParticlesTotal + nBeamParticlesTotal(beamIx);
                 
@@ -201,7 +235,7 @@ classdef matRad_TopasConfigPhotons < MatRad_TopasConfig
                 
                 historyCount(beamIx) = uint32(obj.fracHistories * nBeamParticlesTotal(beamIx) / obj.numOfRuns);
                 
-                if historyCount < cutNumOfBixel || cutNumOfBixel == 0
+                if historyCount(beamIx) < cutNumOfBixel || cutNumOfBixel == 0
                     matRad_cfg.dispError('Insufficient number of histories!')
                 end
                 
@@ -235,7 +269,16 @@ classdef matRad_TopasConfigPhotons < MatRad_TopasConfig
                 fileID = fopen(fullfile(obj.workingDir,fieldSetupFileName),'w');
                 obj.writeFieldHeader(fileID,beamIx);                
                 
-                                
+                
+                %Write modality specific info
+                fprintf(fileID,'s:Sim/ParticleName = "gamma"\n');
+                fprintf(fileID,'u:Sim/ParticleMass = 0\n');
+
+                particleA = 0;
+                particleZ = 0;
+
+                obj.modules_gamma;
+
                 fprintf(fileID,'d:Sim/GantryAngle = %f deg\n',stf(beamIx).gantryAngle);
                 fprintf(fileID,'d:Sim/CouchAngle = %f deg\n',stf(beamIx).couchAngle);
                 
@@ -250,7 +293,7 @@ classdef matRad_TopasConfigPhotons < MatRad_TopasConfig
                 fprintf(fileID,'dv:Tf/Beam/Energy/Times = Tf/Beam/Spot/Times ms\n');
                 fprintf(fileID,'dv:Tf/Beam/Energy/Values = %i ', cutNumOfBixel);
                 
-                fprintf(fileID,num2str(particleA*[dataTOPAS.energy])); %Transform total energy with atomic number
+                fprintf(fileID,num2str([dataTOPAS.energy])); %Transform total energy with atomic number
                 fprintf(fileID,' MeV\n');
                 
                 switch obj.beamProfile
@@ -292,6 +335,24 @@ classdef matRad_TopasConfigPhotons < MatRad_TopasConfig
                         fprintf(fileID,'uv:Tf/Beam/CorrelationY/Values = %i ', cutNumOfBixel);
                         fprintf(fileID,num2str([dataTOPAS.correlation]));
                         fprintf(fileID,'\n');
+                    case 'virtualGaussian'
+                        fprintf(fileID,'s:Tf/Beam/EnergySpread/Function = "Step"\n');
+                        fprintf(fileID,'dv:Tf/Beam/EnergySpread/Times = Tf/Beam/Spot/Times ms\n');
+                        fprintf(fileID,'uv:Tf/Beam/EnergySpread/Values = %i ', cutNumOfBixel);
+                        fprintf(fileID,num2str([dataTOPAS.energySpread]));
+                        fprintf(fileID,'\n');
+                        
+                        if isfield(pln.propStf, 'collimation')
+                            %Use field width for now
+                            fprintf(fileID,'d:So/PencilBeam/BeamPositionSpreadX = %d mm\n', pln.propStf.collimation.fieldWidth);
+                            fprintf(fileID,'d:So/PencilBeam/BeamPositionSpreadY = %d mm\n', pln.propStf.collimation.fieldWidth);
+                        
+                        else
+                            %Set some default value
+                            fprintf(fileID,'d:So/PencilBeam/BeamPositionSpreadX = %d mm\n', 30);
+                            fprintf(fileID,'d:So/PencilBeam/BeamPositionSpreadY = %d mm\n', 30);
+                        end
+                        
                     case 'simple'
                         fprintf(fileID,'s:Tf/Beam/FocusFWHM/Function = "Step"\n');
                         fprintf(fileID,'dv:Tf/Beam/FocusFWHM/Times = Tf/Beam/Spot/Times ms\n');
@@ -329,19 +390,7 @@ classdef matRad_TopasConfigPhotons < MatRad_TopasConfig
                 fprintf(fileID,'iv:Tf/Beam/Current/Values = %i ', cutNumOfBixel);
                 fprintf(fileID,num2str([dataTOPAS.current]));
                 fprintf(fileID,'\n\n');
-                
-                %Range shifter in/out
-                if ~isempty(raShis)
-                    fprintf(fileID,'#Range Shifter States:\n');
-                    for r = 1:numel(raShis)
-                        fprintf(fileID,'s:Tf/Beam/%sOut/Function = "Step"\n',raShis(r).topasID);
-                        fprintf(fileID,'dv:Tf/Beam/%sOut/Times = Tf/Beam/Spot/Times ms\n',raShis(r).topasID);
-                        fprintf(fileID,'uv:Tf/Beam/%sOut/Values = %i ', raShis(r).topasID, cutNumOfBixel);
-                        fprintf(fileID,num2str([dataTOPAS.raShiOut]));
-                        fprintf(fileID,'\n\n');
-                    end
-                end
-                
+                              
                 
                 % NozzleAxialDistance
                 fprintf(fileID,'d:Ge/Nozzle/TransZ = -%f mm\n', nozzleToAxisDistance);
@@ -350,14 +399,52 @@ classdef matRad_TopasConfigPhotons < MatRad_TopasConfig
                     fprintf(fileID,'d:Ge/Nozzle/RotY = Tf/Beam/AngleY/Value rad\n');
                     fprintf(fileID,'d:Ge/Nozzle/RotZ = 0.0 rad\n');
                 end
-                
-                %Range Shifter Definition
-                for r = 1:numel(raShis)
-                    obj.writeRangeShifter(fileID,raShis(r),sourceToNozzleDistance);
-                end
-                                
-                
+                      
                 fprintf(fileID,'%s\n',TOPAS_beamSetup);
+                
+                if exist('TOPAS_mlcSetup')
+                    fprintf(fileID,'%s\n',TOPAS_mlcSetup);
+                    %Erstmal nur für einen ray!
+                    [l,t]=size([stf(1).ray.shapes(:).leftLeafPos]); %there are l leaves and t times/shapes
+                    leftLeafPos = [stf(1).ray.shapes(:).leftLeafPos];
+                    rightLeafPos = [stf(1).ray.shapes(:).rightLeafPos];
+                    %Set MLC paramters as in TOPAS example file https://topas.readthedocs.io/en/latest/parameters/geometry/specialized.html#multi-leaf-collimator    
+                    fprintf(fileID,'d:Ge/MultiLeafCollimatorA/MaximumLeafOpen   = %f cm\n',5);
+                    fprintf(fileID,'d:Ge/MultiLeafCollimatorA/Thickness         = %f cm\n',5);
+                    fprintf(fileID,'d:Ge/MultiLeafCollimatorA/Length            = %f  cm\n',6);
+                    fprintf(fileID,'dv:Ge/MultiLeafCollimatorA/Widths           = %i ', l)
+                    fprintf(fileID,num2str(ones(1,l),' % 2d'));
+                    fprintf(fileID,' cm \n');
+                    fprintf(fileID,'dv:Ge/MultiLeafCollimatorA/XPlusLeavesOpen  = %i ',l);
+                    for i=1:l
+                        fprintf( fileID,'Tf/LeafXPlus%i/Value ',i);
+                    end
+                    fprintf(fileID,'mm \n');
+                    fprintf(fileID,'dv:Ge/MultiLeafCollimatorA/XMinusLeavesOpen  = %i ',l);
+                    for i=1:l
+                        fprintf( fileID,'Tf/LeafXMinus%i/Value ',i);
+                    end
+                    fprintf(fileID,'mm \n');
+                    
+                    for i=1:l
+                        fprintf(fileID,'s:Tf/LeafXMinus%i/Function  = "Step"\n',i);
+                        fprintf(fileID,'dv:Tf/LeafXMinus%i/Times =  %i ', i,t);
+                        fprintf(fileID,num2str([1:t],' % 2d'));
+                        fprintf(fileID,' ms\n');
+                        fprintf(fileID,'dv:Tf/LeafXMinus%i/Values = %i ', i,t);
+                        fprintf(fileID,num2str(leftLeafPos(i,:),' % 2d'));
+                        fprintf(fileID,' mm\n\n');
+                        
+                        fprintf(fileID,'s:Tf/LeafXPlus%i/Function  = "Step"\n',i);
+                        fprintf(fileID,'dv:Tf/LeafXPlus%i/Times =  %i ',i,t);
+                        fprintf(fileID,num2str([1:t],' % 2d'));
+                        fprintf(fileID,' ms\n');
+                        fprintf(fileID,'dv:Tf/LeafXPlus%i/Values = %i ', i,t);
+                        fprintf(fileID,num2str(rightLeafPos(i,:),' % 2d'));
+                        fprintf(fileID,' mm\n\n');
+                        
+                    end
+                end
                 
                 %translate patient according to beam isocenter
                 fprintf(fileID,'d:Ge/Patient/TransX      = %f mm\n',0.5*ct.resolution.x*(ct.cubeDim(2)+1)-stf(beamIx).isoCenter(1));
@@ -369,6 +456,7 @@ classdef matRad_TopasConfigPhotons < MatRad_TopasConfig
                 
                 %load topas modules depending on the particle type
                 fprintf(fileID,'# MODULES\n');
+                modules = obj.modules_gamma;
                 moduleString = cellfun(@(s) sprintf('"%s"',s),modules,'UniformOutput',false);
                 fprintf(fileID,'sv:Ph/Default/Modules = %d %s\n',length(modules),strjoin(moduleString,' '));
                 
@@ -383,13 +471,14 @@ classdef matRad_TopasConfigPhotons < MatRad_TopasConfig
                     obj.writeScorers(fileID);
                     fclose(fileID);
                 end                                
-            end
+  
             
             %Bookkeeping
             obj.MCparam.nbParticlesTotal = nParticlesTotal;
             obj.MCparam.nbHistoriesTotal = sum(historyCount);
             obj.MCparam.nbParticlesField = nBeamParticlesTotal;
-            obj.MCparam.nbHistoriesField = historyCount;     
+            obj.MCparam.nbHistoriesField = historyCount;   
+            end
         end
-    end
+    end  
 end

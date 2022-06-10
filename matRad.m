@@ -37,7 +37,7 @@ pln.propStf.numOfBeams      = numel(pln.propStf.gantryAngles);
 pln.propStf.isoCenter       = ones(pln.propStf.numOfBeams,1) * matRad_getIsoCenter(cst,ct,0);
 % optimization settings
 pln.propOpt.runDAO          = false;      % 1/true: run DAO, 0/false: don't / will be ignored for particles
-pln.propOpt.runSequencing   = false;      % 1/true: run sequencing, 0/false: don't / will be ignored for particles and also triggered by runDAO below
+pln.propOpt.runSequencing   = true;      % 1/true: run sequencing, 0/false: don't / will be ignored for particles and also triggered by runDAO below
 
 quantityOpt  = 'physicalDose';     % options: physicalDose, effect, RBExD
 modelName    = 'none';             % none: for photons, protons, carbon            % constRBE: constant RBE for photons and protons 
@@ -55,9 +55,9 @@ pln.bioParam = matRad_bioModel(pln.radiationMode,quantityOpt, modelName);
 
 % retrieve scenarios for dose calculation and optimziation
 pln.multScen = matRad_multScen(ct,scenGenType);
-
+matRad_cfg.propMC.default_photon_engine = 'TOPAS';
 %% initial visualization and change objective function settings if desired
-matRadGUI
+%matRadGUI
 
 %% generate steering file
 stf = matRad_generateStf(ct,cst,pln);
@@ -65,7 +65,17 @@ stf = matRad_generateStf(ct,cst,pln);
 %% dose calculation
 if strcmp(pln.radiationMode,'photons')
     dij = matRad_calcPhotonDose(ct,stf,pln,cst);
-    %dij = matRad_calcPhotonDoseMC(ct,stf,pln,cst);
+    %inverse planning for imrt
+    resultGUI  = matRad_fluenceOptimization(dij,cst,pln);
+    
+    %sequencing
+    if strcmp(pln.radiationMode,'photons') && (pln.propOpt.runSequencing || pln.propOpt.runDAO)
+        %resultGUI = matRad_xiaLeafSequencing(resultGUI,stf,dij,5);
+        %resultGUI = matRad_engelLeafSequencing(resultGUI,stf,dij,5);
+        resultGUI = matRad_siochiLeafSequencing(resultGUI,stf,dij,5);
+    end
+    [pln,stf] = matRad_aperture2collimation(pln,stf,resultGUI.sequencing,resultGUI.apertureInfo);
+    dij = matRad_calcPhotonDoseMC(ct,stf,pln,cst);
 elseif strcmp(pln.radiationMode,'protons') || strcmp(pln.radiationMode,'helium') || strcmp(pln.radiationMode,'carbon')
     dij = matRad_calcParticleDose(ct,stf,pln,cst);
     %dij = matRad_calcParticleDoseMC(ct,stf,pln,cst); 
@@ -81,6 +91,7 @@ if strcmp(pln.radiationMode,'photons') && (pln.propOpt.runSequencing || pln.prop
     resultGUI = matRad_siochiLeafSequencing(resultGUI,stf,dij,5);
 end
 
+[pln,stf] = matRad_aperture2collimation(pln,stf,resultGUI.sequencing,resultGUI.apertureInfo);
 %% DAO
 if strcmp(pln.radiationMode,'photons') && pln.propOpt.runDAO
    resultGUI = matRad_directApertureOptimization(dij,cst,resultGUI.apertureInfo,resultGUI,pln);

@@ -57,6 +57,7 @@ classdef MatRad_TopasConfig < handle
         materialConversion;
         rsp_basematerial;
         arrayOrdering = 'F'; %'C';
+        rsp_vecLength = 10000; 
                 
         %Scoring
         addVolumeScorers = true
@@ -91,7 +92,7 @@ classdef MatRad_TopasConfig < handle
            
     end
     
-    properties (SetAccess = private)
+    properties %(SetAccess = private)
         thisFolder;
         
         MCparam; %Struct with parameters of last simulation to be saved to file
@@ -109,7 +110,8 @@ classdef MatRad_TopasConfig < handle
             %Let's set some default commands taken from topas installation
             %instructions for mac & debain/ubuntu
             if ispc %We assume topas is installed in wsl (since no windows version)
-                obj.topasExecCommand = 'wsl export TOPAS_G4_DATA_DIR=~/G4Data; ~/topas/bin/topas';
+                 obj.topasExecCommand = 'wsl export TOPAS_G4_DATA_DIR=~/G4Data; ~/topas/bin/topas'; 
+                 %obj.topasExecCommand = 'wsl export TOPAS_G4_DATA_DIR=~/G4Data; export LD_LIBRARY_PATH=~/topas/libexternal/:$LD_LIBRARY_PATH; ~/topas/topas'; %<-- for Pia's laptop uncomment
             elseif ismac
                 obj.topasExecCommand = 'export TOPAS_G4_DATA_DIR=/Applications/G4Data; export QT_QPA_PLATFORM_PLUGIN_PATH=/Applications/topas/Frameworks; /Applications/topas/bin/topas';
             elseif isunix
@@ -148,7 +150,7 @@ classdef MatRad_TopasConfig < handle
             matRad_cfg.dispInfo('Writing parameter files to %s\n',obj.workingDir);
 
             obj.writePatient(ct,pln);
-            obj.writeStfFields(ct,stf,topasBaseData,w);                       
+            obj.writeStfFields(ct,stf,pln,topasBaseData,w);                       
 
             matRad_cfg.dispInfo('Successfully written TOPAS setup files!\n')
             
@@ -159,7 +161,7 @@ classdef MatRad_TopasConfig < handle
     
     %Private sub functions for writing (private so the state of the configuration
     %can not be corrupted)
-    methods (Access = private)
+    methods %(Access = private)
         
         function writeRunHeader(obj,fID,fieldIx,runIx)
            
@@ -245,7 +247,7 @@ classdef MatRad_TopasConfig < handle
             end
         end
         
-        function writeStfFields(obj,ct,stf,baseData,w)
+        function writeStfFields(obj,ct,stf,pln,baseData,w)
             matRad_cfg = MatRad_Config.instance(); %Instance of matRad configuration class
             
             %snippet for future dij simulation
@@ -660,6 +662,7 @@ classdef MatRad_TopasConfig < handle
             matRad_cfg = MatRad_Config.instance(); %Instance of matRad configuration class
             
             medium = obj.rsp_basematerial;
+            vecRSPlength=obj.rsp_vecLength;
             
             if isequal(obj.arrayOrdering,'C')
                 matRad_cfg.dispInfo('Exporting cube in C ordering...\n')
@@ -669,7 +672,9 @@ classdef MatRad_TopasConfig < handle
                 permutation = [2 1 3];
             end
 
-            cubeExport = obj.materialConversion; %'RSP'; %'HUSchneiderToWater';
+            %cubeExport = obj.materialConversion; %'RSP'; %'HUSchneiderToWater'; 'CustomWaterRSP'
+            cubeExport =  'CustomWaterRSP';
+            rspCubeMethod = 2;
             checkMaterial = false;
 
             paramFile = obj.outfilenames.patientParam;
@@ -687,6 +692,116 @@ classdef MatRad_TopasConfig < handle
             fID = fopen(outfile,'w+');
 
             switch cubeExport
+                case 'CustomWaterRSP'
+                    rspCube = ct.cube{1};
+                    rspCube = permute(rspCube,permutation); %  X,Y,Z ordering
+                    
+                    fbase = fopen(['materials/' medium '.txt'],'r');
+                    while ~feof(fbase)
+                        strLine = fgets(fbase); %# read line by line
+                        fprintf(fID,'%s',strLine);
+                    end
+                    fclose(fbase);
+                    
+                    minRSP = min(rspCube(:));
+                    maxRSP = max(rspCube(:));
+                    
+                    % to avoid zero density
+                    if minRSP<1.e-6
+                        minRSP=1.e-6;
+                    end
+                    
+                    % case of homogenous water medium (i.e., RSP=1)
+                    if (length(unique(ct.cube{1})) == 1) && (unique(ct.cube{1} == 1))
+                        fprintf(fID,'s:Ge/Patient/Parent="World"\n');
+                        fprintf(fID,'s:Ge/Patient/Type= "TsBox"\n');
+                        fprintf(fID,'s:Ge/Patient/Material = "%s"\n',medium);
+                        fprintf(fID,'d:Ge/Patient/HLX      = %f mm\n',0.5*ct.cubeDim(2)*ct.resolution.x);
+                        fprintf(fID,'d:Ge/Patient/HLY      = %f mm\n',0.5*ct.cubeDim(1)*ct.resolution.y);
+                        fprintf(fID,'d:Ge/Patient/HLZ      = %f mm\n',0.5*ct.cubeDim(3)*ct.resolution.z);
+                        fprintf(fID,'i:Ge/Patient/XBins    = %d\n',ct.cubeDim(2));
+                        fprintf(fID,'i:Ge/Patient/YBins    = %d\n',ct.cubeDim(1));
+                        fprintf(fID,'i:Ge/Patient/ZBins    = %d\n',ct.cubeDim(3));
+                        
+                        cube = NaN;
+                        % otherwise
+                    else
+                        
+                        % to avoid issues with homogenous media
+                        if minRSP+1.e-6>maxRSP
+                            warning('Use only one RSP value')
+                            vecRSPlength = 2;
+                            minRSP = 0.5*maxRSP;
+                        end
+                        
+                        dRSP = (maxRSP-minRSP)/(vecRSPlength-1);
+                        upperRSP = maxRSP+dRSP;
+                        
+                        ixRSP = round((rspCube-minRSP)/dRSP)+1;
+                        
+                        fprintf(fID,'s:Ge/Patient/Parent="World"\n');
+                        fprintf(fID,'i:Ma/%s/VariableDensityBins = %d\n',medium,vecRSPlength);
+                        fprintf(fID,'u:Ma/%s/VariableDensityMin = %f\n',medium,minRSP);
+                        fprintf(fID,'u:Ma/%s/VariableDensityMax = %f\n',medium,upperRSP);
+                        
+                        if rspCubeMethod == 1
+                            fprintf(fID,'s:Ge/Patient/Type= "TsBox"\n');
+                            fprintf(fID,'s:Ge/Patient/Material = "%s"\n',medium);
+                            fprintf(fID,'d:Ge/Patient/HLX      = %f mm\n',0.5*ct.cubeDim(2)*ct.resolution.x);
+                            fprintf(fID,'d:Ge/Patient/HLY      = %f mm\n',0.5*ct.cubeDim(1)*ct.resolution.y);
+                            fprintf(fID,'d:Ge/Patient/HLZ      = %f mm\n',0.5*ct.cubeDim(3)*ct.resolution.z);
+                            fprintf(fID,'i:Ge/Patient/XBins    = %d\n',ct.cubeDim(2));
+                            fprintf(fID,'i:Ge/Patient/YBins    = %d\n',ct.cubeDim(1));
+                            fprintf(fID,'i:Ge/Patient/ZBins    = %d\n',ct.cubeDim(3));
+                            fprintf(fID,'sv:Ge/Patient/VoxelMaterials = %d\n',nbVoxels);
+                            
+                            voxelString = num2str(ixRSP(:)'-1,['"' medium '_VariableDensityBin_%d"\n']);
+                            
+                            %for ix=1:nbVoxels
+                            %    fprintf(h,'"%s"\n',[ medium '_VariableDensityBin_' num2str(ixRSP(ix)-1)]);
+                            %end
+                            fprintf(fID,voxelString);
+                            
+                            if checkMaterial
+                                for ix=1:nbVoxels
+                                    rspMaterial{ix} = [ medium '_VariableDensityBin_' num2str(ixRSP(ix)-1)];
+                                end
+                                materialsUsed = unique(rspMaterial);
+                                
+                                %      fprintf(h,'sv:Sc/ExtractData/Material = %d ',length(materialsUsed))
+                                %      for ix=1:length(materialsUsed)
+                                %      fprintf(h,'"%s" ',materialsUsed{ix});
+                                %      end
+                                %      fprintf(h,'\n')
+                            end
+                            fclose(fID);
+                            cube = rspCube;
+                            
+                        elseif rspCubeMethod == 2
+                            fprintf(fID,'s:Ge/Patient/Type = "TsImageCube"\n');
+                            fprintf(fID,'b:Ge/Patient/DumpImagingValues = "True"\n');
+                            fprintf(fID,'s:Ge/Patient/BaseMaterial = "%s"\n',medium);
+                            fprintf(fID,'i:Ge/Patient/MaterialIxMax = %d\n',vecRSPlength);
+                            fprintf(fID,'s:Ge/Patient/InputDirectory = "./"\n');
+                            fprintf(fID,'s:Ge/Patient/InputFile = "%s"\n',dataFile);
+                            fprintf(fID,'s:Ge/Patient/ImagingtoMaterialConverter = "matrad"\n');
+                            fprintf(fID,'i:Ge/Patient/NumberOfVoxelsX = %d\n',ct.cubeDim(2));
+                            fprintf(fID,'i:Ge/Patient/NumberOfVoxelsY = %d\n',ct.cubeDim(1));
+                            fprintf(fID,'iv:Ge/Patient/NumberOfVoxelsZ = 1 %d\n',ct.cubeDim(3));
+                            fprintf(fID,'d:Ge/Patient/VoxelSizeX       = %.3f mm\n',ct.resolution.x);
+                            fprintf(fID,'d:Ge/Patient/VoxelSizeY       = %.3f mm\n',ct.resolution.y);
+                            fprintf(fID,'dv:Ge/Patient/VoxelSizeZ       = 1 %.3f mm\n',ct.resolution.z);
+                            fprintf(fID,'s:Ge/Patient/DataType  = "SHORT"\n');
+                            fclose(fID);
+                            
+                            % write data
+                            fID = fopen(fullfile(obj.workingDir, dataFile),'w');
+                            fwrite(fID,ixRSP(:)-1,'short');
+                            fclose(fID);
+                            cube = rspCube;                           
+                            
+                        end
+                    end
                 case 'RSP'
                     rspHlut = matRad_loadHLUT(ct,pln);
                     min_HU = rspHlut(1,1);

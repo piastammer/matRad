@@ -1,0 +1,18 @@
+s:Ge/MultiLeafCollimatorA/Type              = "TsMultiLeafCollimator"
+s:Ge/MultiLeafCollimatorA/Parent            = "World"
+s:Ge/MultiLeafCollimatorA/Material          = "Aluminum"
+d:Ge/MultiLeafCollimatorA/TransX            = 0.0 cm
+d:Ge/MultiLeafCollimatorA/TransY            = 0.0 cm
+d:Ge/MultiLeafCollimatorA/TransZ            = 0.0 cm
+d:Ge/MultiLeafCollimatorA/RotX              = 0.0 deg
+d:Ge/MultiLeafCollimatorA/RotY              = 0.0 deg
+d:Ge/MultiLeafCollimatorA/RotZ              = 0.0 deg
+s:Ge/MultiLeafCollimatorA/DrawingStyle      = "Solid"
+b:Ge/MultiLeafCollimatorA/PrintInformation  = "True"
+
+d:Ge/MultiLeafCollimatorA/MaximumLeafOpen   = 5.0 cm
+d:Ge/MultiLeafCollimatorA/Thickness         = 5.0 cm
+d:Ge/MultiLeafCollimatorA/Length            = 6.0 cm
+dv:Ge/MultiLeafCollimatorA/Widths           = 5 1.5 0.5 0.5 0.5 1.5 cm
+dv:Ge/MultiLeafCollimatorA/XMinusLeavesOpen = 5 0.0 -0.3 -0.2 -0.5 0.0 cm
+dv:Ge/MultiLeafCollimatorA/XPlusLeavesOpen  = 5 0.0  0.3 0.2  0.5 0.0 cm

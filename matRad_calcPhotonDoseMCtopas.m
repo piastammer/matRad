@@ -57,7 +57,7 @@ if isfield(pln,'propMC') && isfield(pln.propMC,'config')
         topasConfig = pln.propMC.config;
     else 
         %Create a default instance of the configuration
-        topasConfig = MatRad_TopasConfig();
+        topasConfig = matRad_TopasConfigPhotons();
         
         %Overwrite parameters
         %mc = metaclass(topasConfig); %get metaclass information to check if we can overwrite properties
@@ -84,7 +84,7 @@ if isfield(pln,'propMC') && isfield(pln.propMC,'config')
         end
     end
 else
-    topasConfig = MatRad_TopasConfig();
+    topasConfig = matRad_TopasConfigPhotons();
 end
         
 
@@ -119,11 +119,12 @@ ctR.z = dij.doseGrid.z;
 
 load([pln.radiationMode,'_',pln.machine]);
 
-topasBaseData = MatRad_TopasBaseData(machine,stf);%,TopasConfig);
+topasBaseData = [];
+%topasBaseData = MatRad_TopasBaseData(machine,stf);%,TopasConfig);
 
 topasConfig.numHistories = nCasePerBixel;
 topasConfig.numOfRuns = matRad_cfg.propMC.topas_defaultNumBatches;
-
+topasConfig.beamProfile = "virtualGaussian";
 %Collect weights
 w = zeros(sum([stf(:).totalNumOfBixels]),1);
 ct = 1;

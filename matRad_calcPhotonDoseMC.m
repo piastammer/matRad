@@ -42,7 +42,7 @@ if nargin < 6
 end
 
 if ~isfield(pln,'propMC') || ~isfield(pln.propMC,'photon_engine')
-    matRad_cfg.dispInfo('Using default proton MC engine "%s"\n',matRad_cfg.propMC.default_proton_engine);
+    matRad_cfg.dispInfo('Using default photon MC engine "%s"\n',matRad_cfg.propMC.default_photon_engine);
     engine = matRad_cfg.propMC.default_photon_engine;
 else
     engine = pln.propMC.photon_engine;
