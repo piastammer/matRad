@@ -32,7 +32,7 @@ classdef MatRad_TopasConfig < handle
         numThreads = 0; %number of used threads, 0 = max number of threads (= num cores)
         numOfRuns = 1; %Default number of runs / batches
         modeHistories = 'num'; %'frac';
-        fracHistories = 1e-4; %Fraction of histories to compute
+        fracHistories = 1e-3; %Fraction of histories to compute
         numHistories = 1e6; %Number of histories to compute        
         verbosity = struct( 'timefeatures',0,...
                             'cputime',true,...

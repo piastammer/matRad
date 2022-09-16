@@ -28,8 +28,8 @@ classdef matRad_TopasConfigPhotons < MatRad_TopasConfig
             %Let's set some default commands taken from topas installation
             %instructions for mac & debain/ubuntu
             if ispc %We assume topas is installed in wsl (since no windows version)
-                %obj.topasExecCommand = 'wsl export TOPAS_G4_DATA_DIR=~/G4Data; ~/topas/bin/topas';
-                obj.topasExecCommand = 'wsl export TOPAS_G4_DATA_DIR=~/G4Data; export LD_LIBRARY_PATH=~/topas/libexternal/:$LD_LIBRARY_PATH; ~/topas/topas';%<-- for Pia's laptop uncomment
+                obj.topasExecCommand = 'wsl export TOPAS_G4_DATA_DIR=~/G4Data; ~/topas/bin/topas';
+                %obj.topasExecCommand = 'wsl export TOPAS_G4_DATA_DIR=~/G4Data; export LD_LIBRARY_PATH=~/topas/libexternal/:$LD_LIBRARY_PATH; ~/topas/topas';%<-- for Pia's laptop uncomment
             elseif ismac
                 obj.topasExecCommand = 'export TOPAS_G4_DATA_DIR=/Applications/G4Data; export QT_QPA_PLATFORM_PLUGIN_PATH=/Applications/topas/Frameworks; /Applications/topas/bin/topas';
             elseif isunix
@@ -54,7 +54,7 @@ classdef matRad_TopasConfigPhotons < MatRad_TopasConfig
             fprintf(fID,'u:Sim/FWHM2SIGMA = %d\n',0.424661);
             fprintf(fID,'\n');
             
-            fprintf(fID,'d:Sim/ElectronProductionCut = %f mm\n',obj.electronProductionCut);
+            fprintf(fID,'d:Sim/ElectronProductionCut = %f mm\n',obj.electronProductionCut*1e-1);
             fprintf(fID,'s:Sim/WorldMaterial = "%s"\n',obj.worldMaterial);
             fprintf(fID,'\n');
             
@@ -370,13 +370,13 @@ classdef matRad_TopasConfigPhotons < MatRad_TopasConfig
                         
                         if isfield(pln.propStf, 'collimation')
                             %Use field width for now
-                            fprintf(fileID,'d:So/PencilBeam/BeamPositionCutoffX = %d mm\n', pln.propStf.collimation.fieldWidth);
-                            fprintf(fileID,'d:So/PencilBeam/BeamPositionCutoffY = %d mm\n', pln.propStf.collimation.fieldWidth);
+                            fprintf(fileID,'d:So/PencilBeam/BeamPositionCutoffX = %d mm\n', pln.propStf.collimation.fieldWidth/2);
+                            fprintf(fileID,'d:So/PencilBeam/BeamPositionCutoffY = %d mm\n', pln.propStf.collimation.fieldWidth/2);
                         
                         else
                             %Set some default value
-                            fprintf(fileID,'d:So/PencilBeam/BeamPositionCutoffX = %d mm\n', 30);
-                            fprintf(fileID,'d:So/PencilBeam/BeamPositionCutoffY = %d mm\n', 30);
+                            fprintf(fileID,'d:So/PencilBeam/BeamPositionCutoffX = %d mm\n', 15);
+                            fprintf(fileID,'d:So/PencilBeam/BeamPositionCutoffY = %d mm\n', 15);
                         end
                         
                     case 'simple'
@@ -414,7 +414,7 @@ classdef matRad_TopasConfigPhotons < MatRad_TopasConfig
                 fprintf(fileID,'s:Tf/Beam/Current/Function = "Step"\n');
                 fprintf(fileID,'dv:Tf/Beam/Current/Times = Tf/Beam/Spot/Times ms\n');
                 fprintf(fileID,'iv:Tf/Beam/Current/Values = %i ', cutNumOfBixel);
-                fprintf(fileID,num2str([dataTOPAS.current]));
+                fprintf(fileID,num2str([dataTOPAS.current].*10));
                 fprintf(fileID,'\n\n');
                               
                 
