@@ -1,0 +1,10 @@
+s:So/PencilBeam/BeamParticle = Sim/ParticleName
+i:So/PencilBeam/NumberOfHistoriesInRun = Tf/Beam/Current/Value
+u:So/PencilBeam/BeamEnergySpread = Tf/Beam/EnergySpread/Value
+d:So/PencilBeam/BeamEnergy = Tf/Beam/Energy/Value MeV
+s:So/PencilBeam/BeamPositionCutoffShape = "Rectangle" # Rectangle or Ellipse (if Flat or Gaussian)
+s:So/PencilBeam/Type = "Beam" # Beam, Isotropic, Emittance or PhaseSpace
+s:So/PencilBeam/BeamPositionDistribution = "Flat" #
+s:So/PencilBeam/Component = "BeamSpot"
+s:So/PencilBeam/BeamAngularDistribution = "None" # None, Flat or Gaussian
+

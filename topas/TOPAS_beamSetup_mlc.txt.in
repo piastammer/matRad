@@ -6,4 +6,4 @@ d:Ge/MultiLeafCollimatorA/TransY            = 0.0 cm
 d:Ge/MultiLeafCollimatorA/TransZ            = 0.0 cm
 d:Ge/MultiLeafCollimatorA/RotX              = 0.0 deg
 d:Ge/MultiLeafCollimatorA/RotY              = 0.0 deg
-d:Ge/MultiLeafCollimatorA/RotZ              = 0.0 deg
+d:Ge/MultiLeafCollimatorA/RotZ              = 90.0 deg

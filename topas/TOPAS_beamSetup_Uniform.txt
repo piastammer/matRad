@@ -1,0 +1,15 @@
+s:So/PencilBeam/BeamParticle = Sim/ParticleName
+i:So/PencilBeam/NumberOfHistoriesInRun = Tf/Beam/Current/Value
+u:So/PencilBeam/BeamEnergySpread = Tf/Beam/EnergySpread/Value
+d:So/PencilBeam/BeamEnergy = Tf/Beam/Energy/Value MeV
+s:So/PencilBeam/BeamPositionCutoffShape = "Rectangle" # Rectangle or Ellipse (if Flat or Gaussian)
+s:So/PencilBeam/Type = "Beam" # Beam, Isotropic, Emittance or PhaseSpace
+s:So/PencilBeam/BeamPositionDistribution = "Flat" #
+s:So/PencilBeam/Component = "BeamSpot"
+d:So/PencilBeam/BeamPositionCutoffX = 200 mm
+d:So/PencilBeam/BeamPositionCutoffY = 200 mm
+s:So/PencilBeam/BeamAngularDistribution = "Gaussian" # None, Flat or Gaussian
+d:So/PencilBeam/BeamAngularCutoffX = 90. deg # X cutoff of angular distrib (if Flat or Gaussian)
+d:So/PencilBeam/BeamAngularCutoffY = 90. deg # Y cutoff of angular distrib (if Flat or Gaussian)
+d:So/PencilBeam/BeamAngularSpreadX = 0.0032 rad # X angular distribution (if Gaussian)
+d:So/PencilBeam/BeamAngularSpreadY = 0.0032 rad # Y angular distribution (if Gaussian)

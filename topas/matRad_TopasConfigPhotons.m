@@ -12,6 +12,7 @@ classdef matRad_TopasConfigPhotons < MatRad_TopasConfig
             'schneider_materialsOnly','TOPAS_SchneiderConverterMaterialsOnly.txt.in',...
             'schneider_full','TOPAS_SchneiderConverter.txt.in',...
             'virtualGaussian','TOPAS_beamSetup_virtualGaussian.txt.in',...
+            'uniform','TOPAS_beamSetup_Uniform.txt.in',...
             'mlc','TOPAS_beamSetup_mlc.txt.in' );
     end
 
@@ -27,8 +28,8 @@ classdef matRad_TopasConfigPhotons < MatRad_TopasConfig
             %Let's set some default commands taken from topas installation
             %instructions for mac & debain/ubuntu
             if ispc %We assume topas is installed in wsl (since no windows version)
-                obj.topasExecCommand = 'wsl export TOPAS_G4_DATA_DIR=~/G4Data; ~/topas/bin/topas';
-                %obj.topasExecCommand = 'wsl export TOPAS_G4_DATA_DIR=~/G4Data; export LD_LIBRARY_PATH=~/topas/libexternal/:$LD_LIBRARY_PATH; ~/topas/topas';%<-- for Pia's laptop uncomment
+                %obj.topasExecCommand = 'wsl export TOPAS_G4_DATA_DIR=~/G4Data; ~/topas/bin/topas';
+                obj.topasExecCommand = 'wsl export TOPAS_G4_DATA_DIR=~/G4Data; export LD_LIBRARY_PATH=~/topas/libexternal/:$LD_LIBRARY_PATH; ~/topas/topas';%<-- for Pia's laptop uncomment
             elseif ismac
                 obj.topasExecCommand = 'export TOPAS_G4_DATA_DIR=/Applications/G4Data; export QT_QPA_PLATFORM_PLUGIN_PATH=/Applications/topas/Frameworks; /Applications/topas/bin/topas';
             elseif isunix
@@ -83,6 +84,10 @@ classdef matRad_TopasConfigPhotons < MatRad_TopasConfig
             switch obj.beamProfile
                 case 'virtualGaussian'
                     fname = fullfile(obj.thisFolder,obj.infilenames_photon.virtualGaussian);
+                    TOPAS_beamSetup = fileread(fname);
+                    matRad_cfg.dispInfo('Reading ''%s'' Beam Characteristics from ''%s''\n',obj.beamProfile,fname);
+                case 'uniform'
+                    fname = fullfile(obj.thisFolder,obj.infilenames_photon.uniform);
                     TOPAS_beamSetup = fileread(fname);
                     matRad_cfg.dispInfo('Reading ''%s'' Beam Characteristics from ''%s''\n',obj.beamProfile,fname);
 
@@ -156,7 +161,10 @@ classdef matRad_TopasConfigPhotons < MatRad_TopasConfig
                     fname = fullfile(obj.thisFolder,obj.infilenames_photon.virtualGaussian);
                     TOPAS_beamSetup = fileread(fname);
                     matRad_cfg.dispInfo('Reading ''%s'' Beam Characteristics from ''%s''\n',obj.beamProfile,fname)
-
+                case 'uniform'
+                    fname = fullfile(obj.thisFolder,obj.infilenames_photon.uniform);
+                    TOPAS_beamSetup = fileread(fname);
+                    matRad_cfg.dispInfo('Reading ''%s'' Beam Characteristics from ''%s''\n',obj.beamProfile,fname);
                 otherwise
                     matRad_cfg.dispError('Beam Type ''%s'' not supported for photons',obj.beamProfile);
             end
@@ -351,6 +359,24 @@ classdef matRad_TopasConfigPhotons < MatRad_TopasConfig
                             %Set some default value
                             fprintf(fileID,'d:So/PencilBeam/BeamPositionSpreadX = %d mm\n', 30);
                             fprintf(fileID,'d:So/PencilBeam/BeamPositionSpreadY = %d mm\n', 30);
+                        end
+                        
+                    case 'uniform'
+                        fprintf(fileID,'s:Tf/Beam/EnergySpread/Function = "Step"\n');
+                        fprintf(fileID,'dv:Tf/Beam/EnergySpread/Times = Tf/Beam/Spot/Times ms\n');
+                        fprintf(fileID,'uv:Tf/Beam/EnergySpread/Values = %i ', cutNumOfBixel);
+                        fprintf(fileID,num2str([dataTOPAS.energySpread]));
+                        fprintf(fileID,'\n');
+                        
+                        if isfield(pln.propStf, 'collimation')
+                            %Use field width for now
+                            fprintf(fileID,'d:So/PencilBeam/BeamPositionCutoffX = %d mm\n', pln.propStf.collimation.fieldWidth);
+                            fprintf(fileID,'d:So/PencilBeam/BeamPositionCutoffY = %d mm\n', pln.propStf.collimation.fieldWidth);
+                        
+                        else
+                            %Set some default value
+                            fprintf(fileID,'d:So/PencilBeam/BeamPositionCutoffX = %d mm\n', 30);
+                            fprintf(fileID,'d:So/PencilBeam/BeamPositionCutoffY = %d mm\n', 30);
                         end
                         
                     case 'simple'
