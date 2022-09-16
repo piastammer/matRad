@@ -110,8 +110,7 @@ classdef MatRad_TopasConfig < handle
             %Let's set some default commands taken from topas installation
             %instructions for mac & debain/ubuntu
             if ispc %We assume topas is installed in wsl (since no windows version)
-                 %obj.topasExecCommand = 'wsl export TOPAS_G4_DATA_DIR=~/G4Data; ~/topas/bin/topas'; 
-                 obj.topasExecCommand = 'wsl export TOPAS_G4_DATA_DIR=~/G4Data; export LD_LIBRARY_PATH=~/topas/libexternal/:$LD_LIBRARY_PATH; ~/topas/topas'; %<-- for Pia's laptop uncomment
+                 obj.topasExecCommand = 'wsl export TOPAS_G4_DATA_DIR=~/G4Data; ~/topas/bin/topas'; 
             elseif ismac
                 obj.topasExecCommand = 'export TOPAS_G4_DATA_DIR=/Applications/G4Data; export QT_QPA_PLATFORM_PLUGIN_PATH=/Applications/topas/Frameworks; /Applications/topas/bin/topas';
             elseif isunix
@@ -673,7 +672,7 @@ classdef MatRad_TopasConfig < handle
             end
 
             %cubeExport = obj.materialConversion; %'RSP'; %'HUSchneiderToWater'; 'CustomWaterRSP'
-            cubeExport =  'CustomWaterRSP';
+            cubeExport =  'RSP';
             rspCubeMethod = 2;
             checkMaterial = false;
 

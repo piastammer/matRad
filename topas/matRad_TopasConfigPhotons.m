@@ -430,42 +430,42 @@ classdef matRad_TopasConfigPhotons < MatRad_TopasConfig
                 
                 if exist('TOPAS_mlcSetup')
                     fprintf(fileID,'%s\n',TOPAS_mlcSetup);
-                    %Erstmal nur für einen ray!
-                    [l,t]=size([stf(1).ray.shapes(:).leftLeafPos]); %there are l leaves and t times/shapes
+                    %Erstmal nur f??r einen ray!
+                    [numOfLeaves,leafTimes]=size([stf(1).ray.shapes(:).leftLeafPos]); %there are #numOfLeaves leaves and #leafTimes times/shapes
                     leftLeafPos = [stf(1).ray.shapes(:).leftLeafPos];
                     rightLeafPos = [stf(1).ray.shapes(:).rightLeafPos];
                     %Set MLC paramters as in TOPAS example file https://topas.readthedocs.io/en/latest/parameters/geometry/specialized.html#multi-leaf-collimator    
                     fprintf(fileID,'d:Ge/MultiLeafCollimatorA/MaximumLeafOpen   = %f cm\n',15);
                     fprintf(fileID,'d:Ge/MultiLeafCollimatorA/Thickness         = %f cm\n',15);
                     fprintf(fileID,'d:Ge/MultiLeafCollimatorA/Length            = %f  cm\n',6);
-                    fprintf(fileID,'dv:Ge/MultiLeafCollimatorA/Widths           = %i ', l)
-                    fprintf(fileID,num2str(ones(1,l),' % 2d'));
-                    fprintf(fileID,' cm \n');
-                    fprintf(fileID,'dv:Ge/MultiLeafCollimatorA/XPlusLeavesOpen  = %i ',l);
-                    for i=1:l
+                    fprintf(fileID,'dv:Ge/MultiLeafCollimatorA/Widths           = %i ', numOfLeaves);
+                    fprintf(fileID,num2str(pln.propStf.collimation.leafWidth*ones(1,numOfLeaves),' % 2d'));
+                    fprintf(fileID,' mm \n');
+                    fprintf(fileID,'dv:Ge/MultiLeafCollimatorA/XPlusLeavesOpen  = %i ',numOfLeaves);
+                    for i=1:numOfLeaves
                         fprintf( fileID,'Tf/LeafXPlus%i/Value ',i);
                     end
                     fprintf(fileID,'mm \n');
-                    fprintf(fileID,'dv:Ge/MultiLeafCollimatorA/XMinusLeavesOpen  = %i ',l);
-                    for i=1:l
+                    fprintf(fileID,'dv:Ge/MultiLeafCollimatorA/XMinusLeavesOpen  = %i ',numOfLeaves);
+                    for i=1:numOfLeaves
                         fprintf( fileID,'Tf/LeafXMinus%i/Value ',i);
                     end
                     fprintf(fileID,'mm \n');
                     
-                    for i=1:l
+                    for i=1:numOfLeaves
                         fprintf(fileID,'s:Tf/LeafXMinus%i/Function  = "Step"\n',i);
-                        fprintf(fileID,'dv:Tf/LeafXMinus%i/Times =  %i ', i,t);
-                        fprintf(fileID,num2str([1:t]*10,' % 2d'));
+                        fprintf(fileID,'dv:Tf/LeafXMinus%i/Times =  %i ', i,leafTimes);
+                        fprintf(fileID,num2str([1:leafTimes]*10,' % 2d'));
                         fprintf(fileID,' ms\n');
-                        fprintf(fileID,'dv:Tf/LeafXMinus%i/Values = %i ', i,t);
+                        fprintf(fileID,'dv:Tf/LeafXMinus%i/Values = %i ', i,leafTimes);
                         fprintf(fileID,num2str(leftLeafPos(i,:),' % 2d'));
                         fprintf(fileID,' mm\n\n');
                         
                         fprintf(fileID,'s:Tf/LeafXPlus%i/Function  = "Step"\n',i);
-                        fprintf(fileID,'dv:Tf/LeafXPlus%i/Times =  %i ',i,t);
-                        fprintf(fileID,num2str([1:t]*10,' % 2d'));
+                        fprintf(fileID,'dv:Tf/LeafXPlus%i/Times =  %i ',i,leafTimes);
+                        fprintf(fileID,num2str([1:leafTimes]*10,' % 2d'));
                         fprintf(fileID,' ms\n');
-                        fprintf(fileID,'dv:Tf/LeafXPlus%i/Values = %i ', i,t);
+                        fprintf(fileID,'dv:Tf/LeafXPlus%i/Values = %i ', i,leafTimes);
                         fprintf(fileID,num2str(rightLeafPos(i,:),' % 2d'));
                         fprintf(fileID,' mm\n\n');
                         

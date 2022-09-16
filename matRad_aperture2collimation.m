@@ -51,7 +51,7 @@ fieldWidth = 2*max(symmetricMLClimits);
 pln.propStf.bixelWidth = 'field';
 pln.propStf.collimation.convResolution = 0.5; %[mm]
 pln.propStf.collimation.fieldWidth = fieldWidth;
-
+pln.propStf.collimation.leafWidth = leafWidth;
 
 %
 %[bixelFieldX,bixelFieldY] = ndgrid(-fieldWidth/2:bixelWidth:fieldWidth/2,-fieldWidth/2:leafWidth:fieldWidth/2);

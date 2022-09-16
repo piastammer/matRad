@@ -126,14 +126,18 @@ topasConfig.numHistories = nCasePerBixel;
 topasConfig.numOfRuns = 1; %matRad_cfg.propMC.topas_defaultNumBatches;
 topasConfig.beamProfile = "uniform"; %"virtualGaussian";
 %Collect weights
-w = zeros(sum([stf(:).totalNumOfBixels]),1);
-ct = 1;
-for i = 1:length(stf)
-    for j = 1:stf(i).numOfRays
-        rayBix = stf(i).numOfBixelsPerRay(j);
-        w(ct:ct+rayBix-1) = stf(i).ray(j).weight;
-        ct = ct + rayBix;
+if calcDoseDirect
+    w = zeros(sum([stf(:).totalNumOfBixels]),1);
+    ct = 1;
+    for i = 1:length(stf)
+        for j = 1:stf(i).numOfRays
+            rayBix = stf(i).numOfBixelsPerRay(j);
+            w(ct:ct+rayBix-1) = stf(i).ray(j).weight;
+            ct = ct + rayBix;
+        end
     end
+else
+    w = ones(sum([stf(:).totalNumOfBixels]),1);
 end
 
 currDir = cd;
