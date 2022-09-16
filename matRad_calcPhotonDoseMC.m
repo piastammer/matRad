@@ -51,10 +51,10 @@ end
 
 if nargin < 5 
     if ~calcDoseDirect
-        nHistories = matRad_cfg.propMC.photons_defaultHistories;
+        nHistories = 100000; % matRad_cfg.propMC.photons_defaultHistories;
         matRad_cfg.dispInfo('Using default number of Histories per bixel: %d\n',nHistories);
     else
-        nHistories = matRad_cfg.propMC.direct_defaultHistories;
+        nHistories = 100000; % matRad_cfg.propMC.direct_defaultHistories;
         matRad_cfg.dispInfo('Using default number of Histories for forward dose calculation: %d\n',nHistories);
     end
 end

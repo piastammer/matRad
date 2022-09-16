@@ -28,7 +28,7 @@ classdef matRad_TopasConfigPhotons < MatRad_TopasConfig
             %instructions for mac & debain/ubuntu
             if ispc %We assume topas is installed in wsl (since no windows version)
                 obj.topasExecCommand = 'wsl export TOPAS_G4_DATA_DIR=~/G4Data; ~/topas/bin/topas';
-                %obj.topasExecCommand = 'wsl export TOPAS_G4_DATA_DIR=~/G4Data; export LD_LIBRARY_PATH=~/topas/libexternal/:$LD_LIBRARY_PATH; ~/topas/topas';<-- for Pia's laptop uncomment
+                %obj.topasExecCommand = 'wsl export TOPAS_G4_DATA_DIR=~/G4Data; export LD_LIBRARY_PATH=~/topas/libexternal/:$LD_LIBRARY_PATH; ~/topas/topas';%<-- for Pia's laptop uncomment
             elseif ismac
                 obj.topasExecCommand = 'export TOPAS_G4_DATA_DIR=/Applications/G4Data; export QT_QPA_PLATFORM_PLUGIN_PATH=/Applications/topas/Frameworks; /Applications/topas/bin/topas';
             elseif isunix
@@ -409,8 +409,8 @@ classdef matRad_TopasConfigPhotons < MatRad_TopasConfig
                     leftLeafPos = [stf(1).ray.shapes(:).leftLeafPos];
                     rightLeafPos = [stf(1).ray.shapes(:).rightLeafPos];
                     %Set MLC paramters as in TOPAS example file https://topas.readthedocs.io/en/latest/parameters/geometry/specialized.html#multi-leaf-collimator    
-                    fprintf(fileID,'d:Ge/MultiLeafCollimatorA/MaximumLeafOpen   = %f cm\n',5);
-                    fprintf(fileID,'d:Ge/MultiLeafCollimatorA/Thickness         = %f cm\n',5);
+                    fprintf(fileID,'d:Ge/MultiLeafCollimatorA/MaximumLeafOpen   = %f cm\n',15);
+                    fprintf(fileID,'d:Ge/MultiLeafCollimatorA/Thickness         = %f cm\n',15);
                     fprintf(fileID,'d:Ge/MultiLeafCollimatorA/Length            = %f  cm\n',6);
                     fprintf(fileID,'dv:Ge/MultiLeafCollimatorA/Widths           = %i ', l)
                     fprintf(fileID,num2str(ones(1,l),' % 2d'));
@@ -429,7 +429,7 @@ classdef matRad_TopasConfigPhotons < MatRad_TopasConfig
                     for i=1:l
                         fprintf(fileID,'s:Tf/LeafXMinus%i/Function  = "Step"\n',i);
                         fprintf(fileID,'dv:Tf/LeafXMinus%i/Times =  %i ', i,t);
-                        fprintf(fileID,num2str([1:t],' % 2d'));
+                        fprintf(fileID,num2str([1:t]*10,' % 2d'));
                         fprintf(fileID,' ms\n');
                         fprintf(fileID,'dv:Tf/LeafXMinus%i/Values = %i ', i,t);
                         fprintf(fileID,num2str(leftLeafPos(i,:),' % 2d'));
@@ -437,7 +437,7 @@ classdef matRad_TopasConfigPhotons < MatRad_TopasConfig
                         
                         fprintf(fileID,'s:Tf/LeafXPlus%i/Function  = "Step"\n',i);
                         fprintf(fileID,'dv:Tf/LeafXPlus%i/Times =  %i ',i,t);
-                        fprintf(fileID,num2str([1:t],' % 2d'));
+                        fprintf(fileID,num2str([1:t]*10,' % 2d'));
                         fprintf(fileID,' ms\n');
                         fprintf(fileID,'dv:Tf/LeafXPlus%i/Values = %i ', i,t);
                         fprintf(fileID,num2str(rightLeafPos(i,:),' % 2d'));

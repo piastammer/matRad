@@ -123,7 +123,7 @@ topasBaseData = [];
 %topasBaseData = MatRad_TopasBaseData(machine,stf);%,TopasConfig);
 
 topasConfig.numHistories = nCasePerBixel;
-topasConfig.numOfRuns = matRad_cfg.propMC.topas_defaultNumBatches;
+topasConfig.numOfRuns = 1; %matRad_cfg.propMC.topas_defaultNumBatches;
 topasConfig.beamProfile = "virtualGaussian";
 %Collect weights
 w = zeros(sum([stf(:).totalNumOfBixels]),1);

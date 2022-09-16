@@ -30,7 +30,7 @@ classdef MatRad_TopasConfig < handle
         
         %Simulation parameters
         numThreads = 0; %number of used threads, 0 = max number of threads (= num cores)
-        numOfRuns = 5; %Default number of runs / batches
+        numOfRuns = 1; %Default number of runs / batches
         modeHistories = 'num'; %'frac';
         fracHistories = 1e-4; %Fraction of histories to compute
         numHistories = 1e6; %Number of histories to compute        
@@ -110,8 +110,8 @@ classdef MatRad_TopasConfig < handle
             %Let's set some default commands taken from topas installation
             %instructions for mac & debain/ubuntu
             if ispc %We assume topas is installed in wsl (since no windows version)
-                 obj.topasExecCommand = 'wsl export TOPAS_G4_DATA_DIR=~/G4Data; ~/topas/bin/topas'; 
-                 %obj.topasExecCommand = 'wsl export TOPAS_G4_DATA_DIR=~/G4Data; export LD_LIBRARY_PATH=~/topas/libexternal/:$LD_LIBRARY_PATH; ~/topas/topas'; %<-- for Pia's laptop uncomment
+                 %obj.topasExecCommand = 'wsl export TOPAS_G4_DATA_DIR=~/G4Data; ~/topas/bin/topas'; 
+                 obj.topasExecCommand = 'wsl export TOPAS_G4_DATA_DIR=~/G4Data; export LD_LIBRARY_PATH=~/topas/libexternal/:$LD_LIBRARY_PATH; ~/topas/topas'; %<-- for Pia's laptop uncomment
             elseif ismac
                 obj.topasExecCommand = 'export TOPAS_G4_DATA_DIR=/Applications/G4Data; export QT_QPA_PLATFORM_PLUGIN_PATH=/Applications/topas/Frameworks; /Applications/topas/bin/topas';
             elseif isunix
@@ -136,7 +136,7 @@ classdef MatRad_TopasConfig < handle
             %Reset MCparam structure
             obj.MCparam = struct();
             obj.MCparam.tallies = {};
-            obj.MCparam.nbRuns = obj.numOfRuns;
+            obj.MCparam.nbRuns = 1; %obj.numOfRuns;
             obj.MCparam.simLabel = obj.label;
             
                         

@@ -1,19 +1,10 @@
 
 s:Ge/Patient/Parent="World"
-i:Ma/G4_WATER/VariableDensityBins = 10000
-u:Ma/G4_WATER/VariableDensityMin = 0.000001
-u:Ma/G4_WATER/VariableDensityMax = 1.104283
-s:Ge/Patient/Type = "TsImageCube"
-b:Ge/Patient/DumpImagingValues = "True"
-s:Ge/Patient/BaseMaterial = "G4_WATER"
-i:Ge/Patient/MaterialIxMax = 10000
-s:Ge/Patient/InputDirectory = "./"
-s:Ge/Patient/InputFile = "matRad_cube.dat"
-s:Ge/Patient/ImagingtoMaterialConverter = "matrad"
-i:Ge/Patient/NumberOfVoxelsX = 100
-i:Ge/Patient/NumberOfVoxelsY = 100
-iv:Ge/Patient/NumberOfVoxelsZ = 1 65
-d:Ge/Patient/VoxelSizeX       = 5.000 mm
-d:Ge/Patient/VoxelSizeY       = 5.000 mm
-dv:Ge/Patient/VoxelSizeZ       = 1 5.000 mm
-s:Ge/Patient/DataType  = "SHORT"
+s:Ge/Patient/Type= "TsBox"
+s:Ge/Patient/Material = "G4_WATER"
+d:Ge/Patient/HLX      = 36.500000 mm
+d:Ge/Patient/HLY      = 89.000000 mm
+d:Ge/Patient/HLZ      = 36.500000 mm
+i:Ge/Patient/XBins    = 73
+i:Ge/Patient/YBins    = 178
+i:Ge/Patient/ZBins    = 73

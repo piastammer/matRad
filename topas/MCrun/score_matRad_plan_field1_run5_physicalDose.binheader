@@ -1,9 +1,0 @@
-# TOPAS Version: 3.2.p2
-# Parameter File: matRad_plan_field1_run5.txt
-# Results for scorer Patient/Tally_DoseToMedium
-# Scored in component: Patient
-# X in 100 bins of 0.5 cm
-# Y in 100 bins of 0.5 cm
-# Z in 65 bins of 0.5 cm
-# DoseToMedium ( Gy ) : Sum   
-# Binary file: score_matRad_plan_field1_run5_physicalDose.bin

@@ -10,8 +10,8 @@ d:Ge/MultiLeafCollimatorA/RotZ              = 0.0 deg
 s:Ge/MultiLeafCollimatorA/DrawingStyle      = "Solid"
 b:Ge/MultiLeafCollimatorA/PrintInformation  = "True"
 
-d:Ge/MultiLeafCollimatorA/MaximumLeafOpen   = 5.0 cm
-d:Ge/MultiLeafCollimatorA/Thickness         = 5.0 cm
+d:Ge/MultiLeafCollimatorA/MaximumLeafOpen   = 15.0 cm
+d:Ge/MultiLeafCollimatorA/Thickness         = 15.0 cm
 d:Ge/MultiLeafCollimatorA/Length            = 6.0 cm
 dv:Ge/MultiLeafCollimatorA/Widths           = 5 1.5 0.5 0.5 0.5 1.5 cm
 dv:Ge/MultiLeafCollimatorA/XMinusLeavesOpen = 5 0.0 -0.3 -0.2 -0.5 0.0 cm

@@ -47,32 +47,32 @@ u:Sim/ParticleMass = 0
 d:Sim/GantryAngle = 0.000000 deg
 d:Sim/CouchAngle = 0.000000 deg
 d:Tf/TimelineStart = 0. ms
-d:Tf/TimelineEnd = 150 ms
-i:Tf/NumberOfSequentialTimes = 15
-dv:Tf/Beam/Spot/Times = 15 10   20   30   40   50   60   70   80   90  100  110  120  130  140  150 ms
+d:Tf/TimelineEnd = 50 ms
+i:Tf/NumberOfSequentialTimes = 5
+dv:Tf/Beam/Spot/Times = 5 10  20  30  40  50 ms
 s:Tf/Beam/Energy/Function = "Step"
 dv:Tf/Beam/Energy/Times = Tf/Beam/Spot/Times ms
-dv:Tf/Beam/Energy/Values = 15 6  6  6  6  6  6  6  6  6  6  6  6  6  6  6 MeV
+dv:Tf/Beam/Energy/Values = 5 6  6  6  6  6 MeV
 s:Tf/Beam/EnergySpread/Function = "Step"
 dv:Tf/Beam/EnergySpread/Times = Tf/Beam/Spot/Times ms
-uv:Tf/Beam/EnergySpread/Values = 15 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
-d:So/PencilBeam/BeamPositionSpreadX = 105 mm
-d:So/PencilBeam/BeamPositionSpreadY = 105 mm
+uv:Tf/Beam/EnergySpread/Values = 5 0  0  0  0  0
+d:So/PencilBeam/BeamPositionSpreadX = 35 mm
+d:So/PencilBeam/BeamPositionSpreadY = 35 mm
 s:Tf/Beam/AngleX/Function = "Step"
 dv:Tf/Beam/AngleX/Times = Tf/Beam/Spot/Times ms
-dv:Tf/Beam/AngleX/Values = 15 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 rad
+dv:Tf/Beam/AngleX/Values = 5 0  0  0  0  0 rad
 s:Tf/Beam/AngleY/Function = "Step"
 dv:Tf/Beam/AngleY/Times = Tf/Beam/Spot/Times ms
-dv:Tf/Beam/AngleY/Values = 15 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 rad
+dv:Tf/Beam/AngleY/Values = 5 0  0  0  0  0 rad
 s:Tf/Beam/PosX/Function = "Step"
 dv:Tf/Beam/PosX/Times = Tf/Beam/Spot/Times ms
-dv:Tf/Beam/PosX/Values = 15 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 mm
+dv:Tf/Beam/PosX/Values = 5 0  0  0  0  0 mm
 s:Tf/Beam/PosY/Function = "Step"
 dv:Tf/Beam/PosY/Times = Tf/Beam/Spot/Times ms
-dv:Tf/Beam/PosY/Values = 15 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 mm
+dv:Tf/Beam/PosY/Values = 5 0  0  0  0  0 mm
 s:Tf/Beam/Current/Function = "Step"
 dv:Tf/Beam/Current/Times = Tf/Beam/Spot/Times ms
-iv:Tf/Beam/Current/Values = 15 3030  3030  3031  3030  3031  3030  3030  3031  3031  3031  3030  3030  3030  3030  3030
+iv:Tf/Beam/Current/Values = 5 20000  20000  20000  20000  20000
 
 d:Ge/Nozzle/TransZ = -1000.000000 mm
 d:Ge/Nozzle/RotX = Tf/Beam/AngleX/Value rad
@@ -99,167 +99,71 @@ d:Ge/MultiLeafCollimatorA/RotX              = 0.0 deg
 d:Ge/MultiLeafCollimatorA/RotY              = 0.0 deg
 d:Ge/MultiLeafCollimatorA/RotZ              = 0.0 deg
 
-d:Ge/MultiLeafCollimatorA/MaximumLeafOpen   = 5.000000 cm
-d:Ge/MultiLeafCollimatorA/Thickness         = 5.000000 cm
+d:Ge/MultiLeafCollimatorA/MaximumLeafOpen   = 15.000000 cm
+d:Ge/MultiLeafCollimatorA/Thickness         = 15.000000 cm
 d:Ge/MultiLeafCollimatorA/Length            = 6.000000  cm
-dv:Ge/MultiLeafCollimatorA/Widths           = 19 1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1 cm 
-dv:Ge/MultiLeafCollimatorA/XPlusLeavesOpen  = 19 Tf/LeafXPlus1/Value Tf/LeafXPlus2/Value Tf/LeafXPlus3/Value Tf/LeafXPlus4/Value Tf/LeafXPlus5/Value Tf/LeafXPlus6/Value Tf/LeafXPlus7/Value Tf/LeafXPlus8/Value Tf/LeafXPlus9/Value Tf/LeafXPlus10/Value Tf/LeafXPlus11/Value Tf/LeafXPlus12/Value Tf/LeafXPlus13/Value Tf/LeafXPlus14/Value Tf/LeafXPlus15/Value Tf/LeafXPlus16/Value Tf/LeafXPlus17/Value Tf/LeafXPlus18/Value Tf/LeafXPlus19/Value mm 
-dv:Ge/MultiLeafCollimatorA/XMinusLeavesOpen  = 19 Tf/LeafXMinus1/Value Tf/LeafXMinus2/Value Tf/LeafXMinus3/Value Tf/LeafXMinus4/Value Tf/LeafXMinus5/Value Tf/LeafXMinus6/Value Tf/LeafXMinus7/Value Tf/LeafXMinus8/Value Tf/LeafXMinus9/Value Tf/LeafXMinus10/Value Tf/LeafXMinus11/Value Tf/LeafXMinus12/Value Tf/LeafXMinus13/Value Tf/LeafXMinus14/Value Tf/LeafXMinus15/Value Tf/LeafXMinus16/Value Tf/LeafXMinus17/Value Tf/LeafXMinus18/Value Tf/LeafXMinus19/Value mm 
+dv:Ge/MultiLeafCollimatorA/Widths           = 7 1  1  1  1  1  1  1 cm 
+dv:Ge/MultiLeafCollimatorA/XPlusLeavesOpen  = 7 Tf/LeafXPlus1/Value Tf/LeafXPlus2/Value Tf/LeafXPlus3/Value Tf/LeafXPlus4/Value Tf/LeafXPlus5/Value Tf/LeafXPlus6/Value Tf/LeafXPlus7/Value mm 
+dv:Ge/MultiLeafCollimatorA/XMinusLeavesOpen  = 7 Tf/LeafXMinus1/Value Tf/LeafXMinus2/Value Tf/LeafXMinus3/Value Tf/LeafXMinus4/Value Tf/LeafXMinus5/Value Tf/LeafXMinus6/Value Tf/LeafXMinus7/Value mm 
 s:Tf/LeafXMinus1/Function  = "Step"
-dv:Tf/LeafXMinus1/Times =  15 1   2   3   4   5   6   7   8   9  10  11  12  13  14  15 ms
-dv:Tf/LeafXMinus1/Values = 15 -4.250000e+01 -4.250000e+01 -2.750000e+01             0 -1.750000e+01 -1.250000e+01  2.500000e+00  7.500000e+00             0             0             0  2.250000e+01  3.750000e+01  3.750000e+01             0 mm
+dv:Tf/LeafXMinus1/Times =  5 10  20  30  40  50 ms
+dv:Tf/LeafXMinus1/Values = 5 0  0  0  0  0 mm
 
 s:Tf/LeafXPlus1/Function  = "Step"
-dv:Tf/LeafXPlus1/Times =  15 1   2   3   4   5   6   7   8   9  10  11  12  13  14  15 ms
-dv:Tf/LeafXPlus1/Values = 15 -3.750000e+01 -3.250000e+01 -2.250000e+01             0 -7.500000e+00 -7.500000e+00  1.750000e+01  2.250000e+01             0             0             0  3.750000e+01  4.250000e+01  4.250000e+01             0 mm
+dv:Tf/LeafXPlus1/Times =  5 10  20  30  40  50 ms
+dv:Tf/LeafXPlus1/Values = 5 0  0  0  0  0 mm
 
 s:Tf/LeafXMinus2/Function  = "Step"
-dv:Tf/LeafXMinus2/Times =  15 1   2   3   4   5   6   7   8   9  10  11  12  13  14  15 ms
-dv:Tf/LeafXMinus2/Values = 15 2.500000e+00  2.500000e+00 -2.750000e+01 -2.750000e+01 -2.250000e+01 -7.500000e+00  7.500000e+00  1.750000e+01  1.750000e+01  1.750000e+01  1.750000e+01  1.750000e+01  2.500000e+00  2.500000e+00  4.250000e+01 mm
+dv:Tf/LeafXMinus2/Times =  5 10  20  30  40  50 ms
+dv:Tf/LeafXMinus2/Values = 5 -1.250000e+01 -1.250000e+01 -1.250000e+01 -1.250000e+01  7.500000e+00 mm
 
 s:Tf/LeafXPlus2/Function  = "Step"
-dv:Tf/LeafXPlus2/Times =  15 1   2   3   4   5   6   7   8   9  10  11  12  13  14  15 ms
-dv:Tf/LeafXPlus2/Values = 15 2.500000e+00  2.500000e+00 -1.750000e+01 -1.750000e+01 -7.500000e+00 -2.500000e+00  1.250000e+01  2.250000e+01  2.250000e+01  2.250000e+01  2.250000e+01  2.250000e+01  2.500000e+00  2.500000e+00  4.750000e+01 mm
+dv:Tf/LeafXPlus2/Times =  5 10  20  30  40  50 ms
+dv:Tf/LeafXPlus2/Values = 5 -7.500000e+00  1.250000e+01  1.250000e+01  1.250000e+01  1.250000e+01 mm
 
 s:Tf/LeafXMinus3/Function  = "Step"
-dv:Tf/LeafXMinus3/Times =  15 1   2   3   4   5   6   7   8   9  10  11  12  13  14  15 ms
-dv:Tf/LeafXMinus3/Values = 15 -3.750000e+01 -3.750000e+01 -3.750000e+01 -2.750000e+01 -1.750000e+01  2.500000e+00  2.500000e+00  7.500000e+00  1.250000e+01  2.500000e+00  2.250000e+01  2.250000e+01  3.250000e+01  2.500000e+00  2.500000e+00 mm
+dv:Tf/LeafXMinus3/Times =  5 10  20  30  40  50 ms
+dv:Tf/LeafXMinus3/Values = 5 -1.250000e+01 -1.250000e+01 -1.250000e+01 -2.500000e+00  7.500000e+00 mm
 
 s:Tf/LeafXPlus3/Function  = "Step"
-dv:Tf/LeafXPlus3/Times =  15 1   2   3   4   5   6   7   8   9  10  11  12  13  14  15 ms
-dv:Tf/LeafXPlus3/Values = 15 -3.250000e+01 -2.750000e+01 -1.750000e+01 -7.500000e+00 -7.500000e+00  2.500000e+00  1.750000e+01  2.250000e+01  2.250000e+01  2.500000e+00  3.750000e+01  3.750000e+01  3.750000e+01  2.500000e+00  2.500000e+00 mm
+dv:Tf/LeafXPlus3/Times =  5 10  20  30  40  50 ms
+dv:Tf/LeafXPlus3/Values = 5 -7.500000e+00  2.500000e+00  1.250000e+01  1.250000e+01  1.250000e+01 mm
 
 s:Tf/LeafXMinus4/Function  = "Step"
-dv:Tf/LeafXMinus4/Times =  15 1   2   3   4   5   6   7   8   9  10  11  12  13  14  15 ms
-dv:Tf/LeafXMinus4/Values = 15 -3.750000e+01 -3.750000e+01 -3.750000e+01 -2.750000e+01 -2.250000e+01  2.500000e+00  2.500000e+00  7.500000e+00  1.250000e+01  2.250000e+01  2.250000e+01  2.250000e+01  3.250000e+01  2.500000e+00  4.250000e+01 mm
+dv:Tf/LeafXMinus4/Times =  5 10  20  30  40  50 ms
+dv:Tf/LeafXMinus4/Values = 5 -1.250000e+01 -1.250000e+01 -1.250000e+01 -2.500000e+00  7.500000e+00 mm
 
 s:Tf/LeafXPlus4/Function  = "Step"
-dv:Tf/LeafXPlus4/Times =  15 1   2   3   4   5   6   7   8   9  10  11  12  13  14  15 ms
-dv:Tf/LeafXPlus4/Values = 15 -2.750000e+01 -2.750000e+01 -1.750000e+01 -7.500000e+00 -2.500000e+00  2.500000e+00  2.250000e+01  2.250000e+01  2.250000e+01  2.750000e+01  3.750000e+01  3.750000e+01  3.750000e+01  2.500000e+00  4.750000e+01 mm
+dv:Tf/LeafXPlus4/Times =  5 10  20  30  40  50 ms
+dv:Tf/LeafXPlus4/Values = 5 -2.500000e+00  7.500000e+00  1.250000e+01  1.250000e+01  1.250000e+01 mm
 
 s:Tf/LeafXMinus5/Function  = "Step"
-dv:Tf/LeafXMinus5/Times =  15 1   2   3   4   5   6   7   8   9  10  11  12  13  14  15 ms
-dv:Tf/LeafXMinus5/Values = 15 -3.750000e+01 -3.750000e+01 -2.750000e+01 -2.750000e+01 -1.750000e+01  2.500000e+00  2.500000e+00  7.500000e+00  1.750000e+01  2.250000e+01  2.250000e+01  2.750000e+01  3.250000e+01  2.500000e+00  2.500000e+00 mm
+dv:Tf/LeafXMinus5/Times =  5 10  20  30  40  50 ms
+dv:Tf/LeafXMinus5/Values = 5 -1.250000e+01 -1.250000e+01 -1.250000e+01 -2.500000e+00  7.500000e+00 mm
 
 s:Tf/LeafXPlus5/Function  = "Step"
-dv:Tf/LeafXPlus5/Times =  15 1   2   3   4   5   6   7   8   9  10  11  12  13  14  15 ms
-dv:Tf/LeafXPlus5/Values = 15 -2.750000e+01 -2.750000e+01 -1.750000e+01 -7.500000e+00 -7.500000e+00  2.500000e+00  1.750000e+01  2.250000e+01  2.250000e+01  2.750000e+01  3.750000e+01  3.750000e+01  3.750000e+01  2.500000e+00  2.500000e+00 mm
+dv:Tf/LeafXPlus5/Times =  5 10  20  30  40  50 ms
+dv:Tf/LeafXPlus5/Values = 5 -7.500000e+00  2.500000e+00  1.250000e+01  1.250000e+01  1.250000e+01 mm
 
 s:Tf/LeafXMinus6/Function  = "Step"
-dv:Tf/LeafXMinus6/Times =  15 1   2   3   4   5   6   7   8   9  10  11  12  13  14  15 ms
-dv:Tf/LeafXMinus6/Values = 15 -3.750000e+01 -3.750000e+01 -3.750000e+01 -2.750000e+01 -2.250000e+01  2.500000e+00  2.500000e+00  7.500000e+00  1.750000e+01  2.250000e+01  2.250000e+01  2.750000e+01  3.250000e+01  2.500000e+00  2.500000e+00 mm
+dv:Tf/LeafXMinus6/Times =  5 10  20  30  40  50 ms
+dv:Tf/LeafXMinus6/Values = 5 -1.250000e+01 -1.250000e+01 -1.250000e+01 -1.250000e+01  7.500000e+00 mm
 
 s:Tf/LeafXPlus6/Function  = "Step"
-dv:Tf/LeafXPlus6/Times =  15 1   2   3   4   5   6   7   8   9  10  11  12  13  14  15 ms
-dv:Tf/LeafXPlus6/Values = 15 -2.750000e+01 -2.750000e+01 -1.750000e+01 -7.500000e+00 -7.500000e+00  2.500000e+00  1.750000e+01  2.250000e+01  2.250000e+01  2.750000e+01  3.750000e+01  3.750000e+01  3.750000e+01  2.500000e+00  2.500000e+00 mm
+dv:Tf/LeafXPlus6/Times =  5 10  20  30  40  50 ms
+dv:Tf/LeafXPlus6/Values = 5 -7.500000e+00  1.250000e+01  1.250000e+01  1.250000e+01  1.250000e+01 mm
 
 s:Tf/LeafXMinus7/Function  = "Step"
-dv:Tf/LeafXMinus7/Times =  15 1   2   3   4   5   6   7   8   9  10  11  12  13  14  15 ms
-dv:Tf/LeafXMinus7/Values = 15 -3.750000e+01 -3.750000e+01 -2.750000e+01 -2.750000e+01 -1.750000e+01  2.500000e+00  2.500000e+00  7.500000e+00  1.250000e+01  2.250000e+01  2.250000e+01  2.750000e+01  3.250000e+01  3.250000e+01  2.500000e+00 mm
+dv:Tf/LeafXMinus7/Times =  5 10  20  30  40  50 ms
+dv:Tf/LeafXMinus7/Values = 5 0  0  0  0  0 mm
 
 s:Tf/LeafXPlus7/Function  = "Step"
-dv:Tf/LeafXPlus7/Times =  15 1   2   3   4   5   6   7   8   9  10  11  12  13  14  15 ms
-dv:Tf/LeafXPlus7/Values = 15 -2.750000e+01 -2.750000e+01 -1.750000e+01 -7.500000e+00 -7.500000e+00  2.500000e+00  1.750000e+01  2.250000e+01  2.250000e+01  2.750000e+01  3.750000e+01  3.750000e+01  3.750000e+01  3.750000e+01  2.500000e+00 mm
+dv:Tf/LeafXPlus7/Times =  5 10  20  30  40  50 ms
+dv:Tf/LeafXPlus7/Values = 5 0  0  0  0  0 mm
 
-s:Tf/LeafXMinus8/Function  = "Step"
-dv:Tf/LeafXMinus8/Times =  15 1   2   3   4   5   6   7   8   9  10  11  12  13  14  15 ms
-dv:Tf/LeafXMinus8/Values = 15 -3.750000e+01 -3.750000e+01 -3.750000e+01 -2.750000e+01 -2.250000e+01  2.500000e+00  2.500000e+00  7.500000e+00  1.750000e+01  2.250000e+01  2.250000e+01  2.750000e+01  3.250000e+01  2.500000e+00  2.500000e+00 mm
-
-s:Tf/LeafXPlus8/Function  = "Step"
-dv:Tf/LeafXPlus8/Times =  15 1   2   3   4   5   6   7   8   9  10  11  12  13  14  15 ms
-dv:Tf/LeafXPlus8/Values = 15 -2.750000e+01 -2.750000e+01 -1.250000e+01 -7.500000e+00 -7.500000e+00  2.500000e+00  1.750000e+01  2.250000e+01  2.250000e+01  2.750000e+01  3.750000e+01  3.750000e+01  3.750000e+01  2.500000e+00  2.500000e+00 mm
-
-s:Tf/LeafXMinus9/Function  = "Step"
-dv:Tf/LeafXMinus9/Times =  15 1   2   3   4   5   6   7   8   9  10  11  12  13  14  15 ms
-dv:Tf/LeafXMinus9/Values = 15 -3.750000e+01 -3.750000e+01 -2.750000e+01 -2.750000e+01 -1.750000e+01  2.500000e+00  2.500000e+00  7.500000e+00  1.750000e+01  2.250000e+01  2.250000e+01  2.750000e+01  3.250000e+01  2.500000e+00  4.250000e+01 mm
-
-s:Tf/LeafXPlus9/Function  = "Step"
-dv:Tf/LeafXPlus9/Times =  15 1   2   3   4   5   6   7   8   9  10  11  12  13  14  15 ms
-dv:Tf/LeafXPlus9/Values = 15 -2.750000e+01 -2.750000e+01 -1.750000e+01 -7.500000e+00 -7.500000e+00  2.500000e+00  1.750000e+01  2.250000e+01  2.250000e+01  2.750000e+01  3.750000e+01  3.750000e+01  3.750000e+01  2.500000e+00  4.750000e+01 mm
-
-s:Tf/LeafXMinus10/Function  = "Step"
-dv:Tf/LeafXMinus10/Times =  15 1   2   3   4   5   6   7   8   9  10  11  12  13  14  15 ms
-dv:Tf/LeafXMinus10/Values = 15 -3.750000e+01 -3.750000e+01 -3.750000e+01 -2.750000e+01 -2.250000e+01  2.500000e+00  2.500000e+00  7.500000e+00  1.750000e+01  2.250000e+01  2.250000e+01  2.750000e+01  3.250000e+01  2.500000e+00  2.500000e+00 mm
-
-s:Tf/LeafXPlus10/Function  = "Step"
-dv:Tf/LeafXPlus10/Times =  15 1   2   3   4   5   6   7   8   9  10  11  12  13  14  15 ms
-dv:Tf/LeafXPlus10/Values = 15 -2.750000e+01 -2.750000e+01 -1.750000e+01 -7.500000e+00 -7.500000e+00  2.500000e+00  1.750000e+01  2.250000e+01  2.250000e+01  2.750000e+01  3.750000e+01  3.750000e+01  3.750000e+01  2.500000e+00  2.500000e+00 mm
-
-s:Tf/LeafXMinus11/Function  = "Step"
-dv:Tf/LeafXMinus11/Times =  15 1   2   3   4   5   6   7   8   9  10  11  12  13  14  15 ms
-dv:Tf/LeafXMinus11/Values = 15 -3.750000e+01 -3.750000e+01 -2.750000e+01 -2.750000e+01 -1.750000e+01  2.500000e+00  2.500000e+00  7.500000e+00  1.750000e+01  2.250000e+01  2.250000e+01  2.750000e+01  3.250000e+01  2.500000e+00  2.500000e+00 mm
-
-s:Tf/LeafXPlus11/Function  = "Step"
-dv:Tf/LeafXPlus11/Times =  15 1   2   3   4   5   6   7   8   9  10  11  12  13  14  15 ms
-dv:Tf/LeafXPlus11/Values = 15 -2.750000e+01 -2.750000e+01 -1.750000e+01 -7.500000e+00 -7.500000e+00  2.500000e+00  1.750000e+01  2.250000e+01  2.250000e+01  2.750000e+01  3.750000e+01  3.750000e+01  3.750000e+01  2.500000e+00  2.500000e+00 mm
-
-s:Tf/LeafXMinus12/Function  = "Step"
-dv:Tf/LeafXMinus12/Times =  15 1   2   3   4   5   6   7   8   9  10  11  12  13  14  15 ms
-dv:Tf/LeafXMinus12/Values = 15 -3.750000e+01 -3.750000e+01 -3.750000e+01 -2.750000e+01 -2.250000e+01  2.500000e+00  2.500000e+00  7.500000e+00  1.750000e+01  2.250000e+01  2.250000e+01  2.750000e+01  3.250000e+01  2.500000e+00  2.500000e+00 mm
-
-s:Tf/LeafXPlus12/Function  = "Step"
-dv:Tf/LeafXPlus12/Times =  15 1   2   3   4   5   6   7   8   9  10  11  12  13  14  15 ms
-dv:Tf/LeafXPlus12/Values = 15 -2.750000e+01 -2.750000e+01 -1.750000e+01 -7.500000e+00 -7.500000e+00  2.500000e+00  1.750000e+01  2.250000e+01  2.250000e+01  2.750000e+01  3.750000e+01  3.750000e+01  3.750000e+01  2.500000e+00  2.500000e+00 mm
-
-s:Tf/LeafXMinus13/Function  = "Step"
-dv:Tf/LeafXMinus13/Times =  15 1   2   3   4   5   6   7   8   9  10  11  12  13  14  15 ms
-dv:Tf/LeafXMinus13/Values = 15 -3.750000e+01 -3.750000e+01 -2.750000e+01 -2.750000e+01 -1.750000e+01  2.500000e+00  2.500000e+00  7.500000e+00  1.750000e+01  2.250000e+01  2.250000e+01  2.750000e+01  3.250000e+01  2.500000e+00  2.500000e+00 mm
-
-s:Tf/LeafXPlus13/Function  = "Step"
-dv:Tf/LeafXPlus13/Times =  15 1   2   3   4   5   6   7   8   9  10  11  12  13  14  15 ms
-dv:Tf/LeafXPlus13/Values = 15 -2.750000e+01 -2.750000e+01 -1.750000e+01 -7.500000e+00 -7.500000e+00  2.500000e+00  1.750000e+01  2.250000e+01  2.250000e+01  2.750000e+01  3.750000e+01  3.750000e+01  3.750000e+01  2.500000e+00  2.500000e+00 mm
-
-s:Tf/LeafXMinus14/Function  = "Step"
-dv:Tf/LeafXMinus14/Times =  15 1   2   3   4   5   6   7   8   9  10  11  12  13  14  15 ms
-dv:Tf/LeafXMinus14/Values = 15 -3.750000e+01 -3.750000e+01 -3.750000e+01 -2.750000e+01 -2.250000e+01  2.500000e+00  2.500000e+00  7.500000e+00  1.250000e+01  2.250000e+01  2.250000e+01  2.750000e+01  3.250000e+01  2.500000e+00  2.500000e+00 mm
-
-s:Tf/LeafXPlus14/Function  = "Step"
-dv:Tf/LeafXPlus14/Times =  15 1   2   3   4   5   6   7   8   9  10  11  12  13  14  15 ms
-dv:Tf/LeafXPlus14/Values = 15 -2.750000e+01 -2.750000e+01 -1.750000e+01 -7.500000e+00 -7.500000e+00  2.500000e+00  1.750000e+01  2.250000e+01  2.250000e+01  2.750000e+01  3.750000e+01  3.750000e+01  3.750000e+01  2.500000e+00  2.500000e+00 mm
-
-s:Tf/LeafXMinus15/Function  = "Step"
-dv:Tf/LeafXMinus15/Times =  15 1   2   3   4   5   6   7   8   9  10  11  12  13  14  15 ms
-dv:Tf/LeafXMinus15/Values = 15 -3.750000e+01 -3.750000e+01 -2.750000e+01 -2.750000e+01 -2.250000e+01  2.500000e+00  2.500000e+00  7.500000e+00  1.750000e+01  2.250000e+01  2.250000e+01  2.750000e+01  3.250000e+01  2.500000e+00  2.500000e+00 mm
-
-s:Tf/LeafXPlus15/Function  = "Step"
-dv:Tf/LeafXPlus15/Times =  15 1   2   3   4   5   6   7   8   9  10  11  12  13  14  15 ms
-dv:Tf/LeafXPlus15/Values = 15 -2.750000e+01 -2.750000e+01 -1.750000e+01 -7.500000e+00 -2.500000e+00  2.500000e+00  1.750000e+01  2.250000e+01  2.250000e+01  2.750000e+01  3.750000e+01  3.750000e+01  3.750000e+01  2.500000e+00  2.500000e+00 mm
-
-s:Tf/LeafXMinus16/Function  = "Step"
-dv:Tf/LeafXMinus16/Times =  15 1   2   3   4   5   6   7   8   9  10  11  12  13  14  15 ms
-dv:Tf/LeafXMinus16/Values = 15 -3.750000e+01 -3.750000e+01 -3.750000e+01 -2.750000e+01 -1.750000e+01  2.500000e+00  7.500000e+00  1.250000e+01  1.750000e+01  2.250000e+01  2.250000e+01  2.750000e+01  3.250000e+01  2.500000e+00  4.250000e+01 mm
-
-s:Tf/LeafXPlus16/Function  = "Step"
-dv:Tf/LeafXPlus16/Times =  15 1   2   3   4   5   6   7   8   9  10  11  12  13  14  15 ms
-dv:Tf/LeafXPlus16/Values = 15 -2.750000e+01 -2.750000e+01 -1.250000e+01 -7.500000e+00 -7.500000e+00  2.500000e+00  2.250000e+01  2.250000e+01  2.750000e+01  2.750000e+01  3.750000e+01  3.750000e+01  3.750000e+01  2.500000e+00  4.750000e+01 mm
-
-s:Tf/LeafXMinus17/Function  = "Step"
-dv:Tf/LeafXMinus17/Times =  15 1   2   3   4   5   6   7   8   9  10  11  12  13  14  15 ms
-dv:Tf/LeafXMinus17/Values = 15 -3.750000e+01 -3.750000e+01 -3.750000e+01 -2.750000e+01 -1.750000e+01  2.500000e+00  2.500000e+00  7.500000e+00  1.250000e+01  2.250000e+01  2.750000e+01  2.750000e+01  3.250000e+01  3.250000e+01  2.500000e+00 mm
-
-s:Tf/LeafXPlus17/Function  = "Step"
-dv:Tf/LeafXPlus17/Times =  15 1   2   3   4   5   6   7   8   9  10  11  12  13  14  15 ms
-dv:Tf/LeafXPlus17/Values = 15 -2.750000e+01 -2.750000e+01 -1.750000e+01 -7.500000e+00 -7.500000e+00  2.500000e+00  1.750000e+01  2.250000e+01  2.750000e+01  2.750000e+01  3.750000e+01  3.750000e+01  3.750000e+01  3.750000e+01  2.500000e+00 mm
-
-s:Tf/LeafXMinus18/Function  = "Step"
-dv:Tf/LeafXMinus18/Times =  15 1   2   3   4   5   6   7   8   9  10  11  12  13  14  15 ms
-dv:Tf/LeafXMinus18/Values = 15 2.500000e+00 -2.750000e+01 -2.750000e+01 -2.750000e+01 -2.750000e+01 -7.500000e+00  2.500000e+00  1.250000e+01  1.750000e+01  1.750000e+01  2.750000e+01  2.500000e+00  2.500000e+00  2.500000e+00  4.250000e+01 mm
-
-s:Tf/LeafXPlus18/Function  = "Step"
-dv:Tf/LeafXPlus18/Times =  15 1   2   3   4   5   6   7   8   9  10  11  12  13  14  15 ms
-dv:Tf/LeafXPlus18/Values = 15 2.500000e+00 -2.250000e+01 -1.750000e+01 -1.250000e+01 -7.500000e+00 -2.500000e+00  2.500000e+00  2.250000e+01  2.750000e+01  2.750000e+01  3.250000e+01  2.500000e+00  2.500000e+00  2.500000e+00  4.750000e+01 mm
-
-s:Tf/LeafXMinus19/Function  = "Step"
-dv:Tf/LeafXMinus19/Times =  15 1   2   3   4   5   6   7   8   9  10  11  12  13  14  15 ms
-dv:Tf/LeafXMinus19/Values = 15 -4.250000e+01 -3.250000e+01 -2.250000e+01 -1.750000e+01 -1.250000e+01 -1.250000e+01  2.500000e+00  1.250000e+01  2.250000e+01             0  2.750000e+01             0             0  3.750000e+01             0 mm
-
-s:Tf/LeafXPlus19/Function  = "Step"
-dv:Tf/LeafXPlus19/Times =  15 1   2   3   4   5   6   7   8   9  10  11  12  13  14  15 ms
-dv:Tf/LeafXPlus19/Values = 15 -3.750000e+01 -2.250000e+01 -1.750000e+01 -7.500000e+00 -7.500000e+00 -7.500000e+00  7.500000e+00  1.750000e+01  2.750000e+01             0  3.750000e+01             0             0  4.250000e+01             0 mm
-
-d:Ge/Patient/TransX      = -0.808930 mm
-d:Ge/Patient/TransY      = 14.085278 mm
-d:Ge/Patient/TransZ      = -0.142129 mm
+d:Ge/Patient/TransX      = 3.000000 mm
+d:Ge/Patient/TransY      = -58.500000 mm
+d:Ge/Patient/TransZ      = 3.000000 mm
 d:Ge/Patient/RotX=0. deg
 d:Ge/Patient/RotY=0. deg
 d:Ge/Patient/RotZ=0. deg
