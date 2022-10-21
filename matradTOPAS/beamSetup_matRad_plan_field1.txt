@@ -1,0 +1,133 @@
+u:Sim/HalfValue = 5.000000e-01
+u:Sim/SIGMA2FWHM = 1.190500e+00
+u:Sim/FWHM2SIGMA = 8.400000e-01
+
+d:Sim/ElectronProductionCut = 0.050000 mm
+s:Sim/WorldMaterial = "G4_AIR"
+
+includeFile = matRad_cube.txt
+
+s:Ge/World/Material = Sim/WorldMaterial
+d:Ge/World/HLX=200.0 cm
+d:Ge/World/HLY=200.0 cm
+d:Ge/World/HLZ=200.0 cm
+b:Ge/World/Invisible = "TRUE"
+
+s:Ge/Nozzle/Parent = "Isocenter"
+s:Ge/Nozzle/Type = "Group"
+
+s:Ge/Isocenter/Parent = "Gantry"
+s:Ge/Isocenter/Type = "Group"
+d:Ge/Isocenter/RotX = +90. deg
+d:Ge/Isocenter/RotY = 0. deg
+d:Ge/Isocenter/RotZ = +90. deg
+
+s:Ge/Gantry/Parent = "Couch"
+s:Ge/Gantry/Type = "Group"
+d:Ge/Gantry/RotX = 0. deg
+d:Ge/Gantry/RotY = 0. deg
+d:Ge/Gantry/RotZ = -1 * Sim/GantryAngle deg
+
+s:Ge/Couch/Parent = "World"
+s:Ge/Couch/Type = "Group"
+d:Ge/Couch/TransX = 0. cm
+d:Ge/Couch/TransY = 0. cm
+d:Ge/Couch/TransZ = 0. cm
+d:Ge/Couch/RotX = 0. deg
+d:Ge/Couch/RotY = -1 * Sim/CouchAngle deg
+d:Ge/Couch/RotZ = 0. deg
+
+s:Sim/ParticleName = "gamma"
+u:Sim/ParticleMass = 0
+d:Ge/Nozzle/TransZ = -100.000000 mm
+s:So/Phasespace/Type                            = "PhaseSpace"
+s:So/Phasespace/PhaseSpaceFileName              = "SIEMENS_PRIMUS_6.0_0.10_15.0x15.0."
+s:So/Phasespace/Component                       = "Nozzle"
+#b:So/Example/LimitedAssumeFirstParticleIsNewHistory = "true"
+#b:So/Example/LimitedAssumeEveryParticleIsNewHistory = "true"
+#b:So/Example/LimitedAssumePhotonIsNewHistory = "true"
+i:So/Phasespace/PhaseSpaceMultipleUse = 0
+i:So/Phasespace/NumberOfHistoriesInRun = 5
+i:So/Phasespace/PreCheckShowParticleCountAtInterval = 100000
+b:So/Phasespace/PhaseSpacePreCheck = "False"
+
+s:Ge/MultiLeafCollimatorA/Type              = "TsMultiLeafCollimator"
+s:Ge/MultiLeafCollimatorA/Parent            = "Nozzle"
+s:Ge/MultiLeafCollimatorA/Material          = "Aluminum"
+d:Ge/MultiLeafCollimatorA/TransX            = 0.0 cm
+d:Ge/MultiLeafCollimatorA/TransY            = 0.0 cm
+d:Ge/MultiLeafCollimatorA/TransZ            = 2 cm
+d:Ge/MultiLeafCollimatorA/RotX              = 0.0 deg
+d:Ge/MultiLeafCollimatorA/RotY              = 0.0 deg
+d:Ge/MultiLeafCollimatorA/RotZ              = 90.0 deg
+
+d:Ge/MultiLeafCollimatorA/MaximumLeafOpen   = 15.000000 cm
+d:Ge/MultiLeafCollimatorA/Thickness         = 15.000000 cm
+d:Ge/MultiLeafCollimatorA/Length            = 6.000000  cm
+dv:Ge/MultiLeafCollimatorA/Widths           = 7 5  5  5  5  5  5  5 mm 
+dv:Ge/MultiLeafCollimatorA/XPlusLeavesOpen  = 7 Tf/LeafXPlus1/Value Tf/LeafXPlus2/Value Tf/LeafXPlus3/Value Tf/LeafXPlus4/Value Tf/LeafXPlus5/Value Tf/LeafXPlus6/Value Tf/LeafXPlus7/Value mm 
+dv:Ge/MultiLeafCollimatorA/XMinusLeavesOpen  = 7 Tf/LeafXMinus1/Value Tf/LeafXMinus2/Value Tf/LeafXMinus3/Value Tf/LeafXMinus4/Value Tf/LeafXMinus5/Value Tf/LeafXMinus6/Value Tf/LeafXMinus7/Value mm 
+s:Tf/LeafXMinus1/Function  = "Step"
+dv:Tf/LeafXMinus1/Times =  5 10  20  30  40  50 ms
+dv:Tf/LeafXMinus1/Values = 5 0  0  0  0  0 mm
+
+s:Tf/LeafXPlus1/Function  = "Step"
+dv:Tf/LeafXPlus1/Times =  5 10  20  30  40  50 ms
+dv:Tf/LeafXPlus1/Values = 5 0  0  0  0  0 mm
+
+s:Tf/LeafXMinus2/Function  = "Step"
+dv:Tf/LeafXMinus2/Times =  5 10  20  30  40  50 ms
+dv:Tf/LeafXMinus2/Values = 5 -7.500000e+00             0  2.500000e+00             0             0 mm
+
+s:Tf/LeafXPlus2/Function  = "Step"
+dv:Tf/LeafXPlus2/Times =  5 10  20  30  40  50 ms
+dv:Tf/LeafXPlus2/Values = 5 -2.500000e+00             0  7.500000e+00             0             0 mm
+
+s:Tf/LeafXMinus3/Function  = "Step"
+dv:Tf/LeafXMinus3/Times =  5 10  20  30  40  50 ms
+dv:Tf/LeafXMinus3/Values = 5 -1.250000e+01 -7.500000e+00  2.500000e+00  2.500000e+00             0 mm
+
+s:Tf/LeafXPlus3/Function  = "Step"
+dv:Tf/LeafXPlus3/Times =  5 10  20  30  40  50 ms
+dv:Tf/LeafXPlus3/Values = 5 -2.500000e+00 -2.500000e+00  7.500000e+00  7.500000e+00             0 mm
+
+s:Tf/LeafXMinus4/Function  = "Step"
+dv:Tf/LeafXMinus4/Times =  5 10  20  30  40  50 ms
+dv:Tf/LeafXMinus4/Values = 5 0  0  0  0  0 mm
+
+s:Tf/LeafXPlus4/Function  = "Step"
+dv:Tf/LeafXPlus4/Times =  5 10  20  30  40  50 ms
+dv:Tf/LeafXPlus4/Values = 5 0  0  0  0  0 mm
+
+s:Tf/LeafXMinus5/Function  = "Step"
+dv:Tf/LeafXMinus5/Times =  5 10  20  30  40  50 ms
+dv:Tf/LeafXMinus5/Values = 5 -1.250000e+01 -7.500000e+00  2.500000e+00  2.500000e+00  2.500000e+00 mm
+
+s:Tf/LeafXPlus5/Function  = "Step"
+dv:Tf/LeafXPlus5/Times =  5 10  20  30  40  50 ms
+dv:Tf/LeafXPlus5/Values = 5 -2.500000e+00 -2.500000e+00  7.500000e+00  7.500000e+00  7.500000e+00 mm
+
+s:Tf/LeafXMinus6/Function  = "Step"
+dv:Tf/LeafXMinus6/Times =  5 10  20  30  40  50 ms
+dv:Tf/LeafXMinus6/Values = 5 0  0  0  0  0 mm
+
+s:Tf/LeafXPlus6/Function  = "Step"
+dv:Tf/LeafXPlus6/Times =  5 10  20  30  40  50 ms
+dv:Tf/LeafXPlus6/Values = 5 0  0  0  0  0 mm
+
+s:Tf/LeafXMinus7/Function  = "Step"
+dv:Tf/LeafXMinus7/Times =  5 10  20  30  40  50 ms
+dv:Tf/LeafXMinus7/Values = 5 0  0  0  0  0 mm
+
+s:Tf/LeafXPlus7/Function  = "Step"
+dv:Tf/LeafXPlus7/Times =  5 10  20  30  40  50 ms
+dv:Tf/LeafXPlus7/Values = 5 0  0  0  0  0 mm
+
+d:Ge/Patient/TransX      = 2.000000 mm
+d:Ge/Patient/TransY      = -59.500000 mm
+d:Ge/Patient/TransZ      = 2.000000 mm
+d:Ge/Patient/RotX=0. deg
+d:Ge/Patient/RotY=0. deg
+d:Ge/Patient/RotZ=0. deg
+# MODULES
+sv:Ph/Default/Modules = 3 "g4em-standard_opt4" "g4h-phy_QGSP_BIC_HP" "g4decay"
