@@ -111,6 +111,7 @@ classdef matRad_TopasConfig < handle
         infilenames = struct(   'geometry','world/TOPAS_matRad_geometry.txt.in',...
             ... % BeamSetup files
             'beam_virtualGaussian','beamSetup/TOPAS_beamSetup_virtualGaussian.txt.in',...
+            'beam_virtualEnergyFluence','beamSetup/TOPAS_beamSetup_virtualEnergyFluence.txt.in',...
             'beam_phasespace','beamSetup/TOPAS_beamSetup_phasespace.txt.in',...
             'beam_uniform','beamSetup/TOPAS_beamSetup_uniform.txt.in',...
             'beam_mlc','beamSetup/TOPAS_beamSetup_mlc.txt.in',...
@@ -183,6 +184,19 @@ classdef matRad_TopasConfig < handle
             %   stf:            matRad steering struct
             %   machine:        machine to be used for calculation
             %   w:              (optional) weights in case of calcDoseDirect
+            %
+            % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            %
+            % Copyright 2022 the matRad development team.
+            %
+            % This file is part of the matRad project. It is subject to the license
+            % terms in the LICENSE file found in the top-level directory of this
+            % distribution and at https://github.com/e0404/matRad/LICENSES.txt. No part
+            % of the matRad project, including this file, may be copied, modified,
+            % propagated, or distributed except according to the terms contained in the
+            % LICENSE file.
+            %
+            % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
             matRad_cfg = MatRad_Config.instance(); %Instance of matRad configuration class
 
@@ -311,7 +325,19 @@ classdef matRad_TopasConfig < handle
             %
             % output
             %   topasCube:      struct with all read out subfields
-
+            %
+            % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            %
+            % Copyright 2022 the matRad development team.
+            %
+            % This file is part of the matRad project. It is subject to the license
+            % terms in the LICENSE file found in the top-level directory of this
+            % distribution and at https://github.com/e0404/matRad/LICENSES.txt. No part
+            % of the matRad project, including this file, may be copied, modified,
+            % propagated, or distributed except according to the terms contained in the
+            % LICENSE file.
+            %
+            % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
             % Load in saved MC parameters
             if isfile([folder filesep 'MCparam.mat'])
@@ -376,6 +402,19 @@ classdef matRad_TopasConfig < handle
             %
             % EXAMPLE calls:
             %   topasCube = topasConfig.readExternal('pathToFolder')
+            %
+            % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            %
+            % Copyright 2022 the matRad development team.
+            %
+            % This file is part of the matRad project. It is subject to the license
+            % terms in the LICENSE file found in the top-level directory of this
+            % distribution and at https://github.com/e0404/matRad/LICENSES.txt. No part
+            % of the matRad project, including this file, may be copied, modified,
+            % propagated, or distributed except according to the terms contained in the
+            % LICENSE file.
+            %
+            % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
             % read in TOPAS files in dij
             dij = obj.readFiles(folder);
@@ -414,6 +453,19 @@ classdef matRad_TopasConfig < handle
             %
             % output
             %   topasCube:      struct with all read out subfields
+            %
+            % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            %
+            % Copyright 2022 the matRad development team.
+            %
+            % This file is part of the matRad project. It is subject to the license
+            % terms in the LICENSE file found in the top-level directory of this
+            % distribution and at https://github.com/e0404/matRad/LICENSES.txt. No part
+            % of the matRad project, including this file, may be copied, modified,
+            % propagated, or distributed except according to the terms contained in the
+            % LICENSE file.
+            %
+            % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
             matRad_cfg = MatRad_Config.instance(); %Instance of matRad configuration class
 
@@ -433,17 +485,11 @@ classdef matRad_TopasConfig < handle
             % Make sure that the filename always ends on 'run1_tally'
             switch obj.MCparam.outputType
                 case 'csv'
-                    searchstr = 'score_matRad_plan_field1_run1_*.csv';
-                    files = dir([folder filesep searchstr]);
-                    %obj.MCparam.tallies = cellfun(@(x) extractBetween(x,'run1_','.csv') ,{files(:).name}); %Not Octave compatible
-                    nameBegin = strfind(searchstr,'*');
-                    obj.MCparam.tallies = cellfun(@(s) s(nameBegin:end-4),{files(:).name},'UniformOutput',false);
+                    files = dir([folder filesep 'score_matRad_plan_field1_run1_*.csv']);
+                    obj.MCparam.tallies = cellfun(@(x) extractBetween(x,'run1_','.csv') ,{files(:).name});
                 case 'binary'
-                    searchstr = 'score_matRad_plan_field1_run1_*.bin';
-                    files = dir([folder filesep searchstr]);
-                    %obj.MCparam.tallies = cellfun(@(x) extractBetween(x,'run1_','.bin') ,{files(:).name}); %Not Octave compatible
-                    nameBegin = strfind(searchstr,'*');
-                    obj.MCparam.tallies = cellfun(@(s) s(nameBegin:end-4),{files(:).name},'UniformOutput',false);
+                    files = dir([folder filesep 'score_matRad_plan_field1_*run1_*.bin']);
+                    obj.MCparam.tallies = cellfun(@(x) extractBetween(x,'run1_','.bin') ,{files(:).name});
             end
 
             obj.MCparam.tallies = unique(obj.MCparam.tallies);
@@ -668,7 +714,7 @@ classdef matRad_TopasConfig < handle
         end
 
         function dij = fillDij(obj,topasCubes,dij)
-            %TODO: Insert documentation
+
             matRad_cfg = MatRad_Config.instance(); %Instance of matRad configuration class
 
             % Load weights from parameter variable
@@ -811,7 +857,7 @@ classdef matRad_TopasConfig < handle
         end
 
         function writeRunHeader(obj,fID,fieldIx,runIx,ctScen)
-            %TODO: Insert documentation
+
             fprintf(fID,'s:Sim/PlanLabel = "%s"\n',obj.label);
             if exist('ctScen','var')
                 fprintf(fID,'s:Sim/ScoreLabel = "score_%s_field%d_ct%d_run%d"\n',obj.label,fieldIx,ctScen,runIx);
@@ -846,14 +892,13 @@ classdef matRad_TopasConfig < handle
             fprintf(fID,'\n');
             fprintf(fID,['i:Ts/Seed = ',num2str(runIx),'\n']);
 
-            %TODO: remove or document 
             %fprintf(fID,'includeFile = %s/TOPAS_Simulation_Setup.txt\n',obj.thisFolder);
             %fprintf(fID,'includeFile = %s/TOPAS_matRad_geometry.txt\n',obj.thisFolder);
             %fprintf(fID,'includeFile = %s/TOPAS_scorer_surfaceIC.txt\n',obj.thisFolder);
         end
 
         function writeFieldHeader(obj,fID,ctScen)
-            %TODO: Insert documentation
+
             matRad_cfg = MatRad_Config.instance(); %Instance of matRad configuration class
 
             if ~strcmp(obj.beamProfile,'phasespace')
@@ -891,7 +936,7 @@ classdef matRad_TopasConfig < handle
         end
 
         function writeScorers(obj,fID)
-            %TODO: Insert documentation
+
             matRad_cfg = MatRad_Config.instance(); %Instance of matRad configuration class
 
             obj.MCparam.outputType = obj.scorer.outputType;
@@ -1100,7 +1145,7 @@ classdef matRad_TopasConfig < handle
         end
 
         function writeStfFields(obj,ct,stf,pln,w,baseData)
-            %TODO: Insert documentation
+
             matRad_cfg = MatRad_Config.instance(); %Instance of matRad configuration class
 
             isPhoton = false;
@@ -1173,7 +1218,12 @@ classdef matRad_TopasConfig < handle
                     fname = fullfile(obj.thisFolder,obj.infilenames.beam_uniform);
                     TOPAS_beamSetup = fileread(fname);
                     matRad_cfg.dispInfo('Reading ''%s'' Beam Characteristics from ''%s''\n',obj.beamProfile,fname);
-
+               
+                case 'virtualEnergyFluence'
+                    fname = fullfile(obj.thisFolder,obj.infilenames.beam_virtualEnergyFluence);
+                    TOPAS_beamSetup = fileread(fname);
+                    matRad_cfg.dispInfo('Reading ''%s'' Beam Characteristics from ''%s''\n',obj.beamProfile,fname);
+                
                 otherwise
                     matRad_cfg.dispError('Beam Type ''%s'' not supported for photons',obj.beamProfile);
 
@@ -1278,12 +1328,9 @@ classdef matRad_TopasConfig < handle
                                         dataTOPAS(cutNumOfBixel).energy = selectedData(ixTmp).MeanEnergy;
                                         dataTOPAS(cutNumOfBixel).nominalEnergy = selectedData(ixTmp).NominalEnergy;
                                         dataTOPAS(cutNumOfBixel).energySpread = selectedData(ixTmp).EnergySpread;
-                                        dataTOPAS(cutNumOfBixel).spotSizeX = selectedData(ixTmp).SpotSize1x;
-                                        dataTOPAS(cutNumOfBixel).divergenceX = selectedData(ixTmp).Divergence1x;
-                                        dataTOPAS(cutNumOfBixel).correlationX = selectedData(ixTmp).Correlation1x;
-                                        dataTOPAS(cutNumOfBixel).spotSizeY = selectedData(ixTmp).SpotSize1y;
-                                        dataTOPAS(cutNumOfBixel).divergenceY = selectedData(ixTmp).Divergence1y;
-                                        dataTOPAS(cutNumOfBixel).correlationY = selectedData(ixTmp).Correlation1y;
+                                        dataTOPAS(cutNumOfBixel).spotSize = selectedData(ixTmp).SpotSize1x;
+                                        dataTOPAS(cutNumOfBixel).divergence = selectedData(ixTmp).Divergence1x;
+                                        dataTOPAS(cutNumOfBixel).correlation = selectedData(ixTmp).Correlation1x;
                                         dataTOPAS(cutNumOfBixel).focusFWHM = selectedData(ixTmp).FWHMatIso;
                                     end
                                 case 'photons'
@@ -1497,34 +1544,34 @@ classdef matRad_TopasConfig < handle
                         fprintf(fileID,'s:Tf/Beam/SigmaX/Function = "Step"\n');
                         fprintf(fileID,'dv:Tf/Beam/SigmaX/Times = Tf/Beam/Spot/Times ms\n');
                         fprintf(fileID,'dv:Tf/Beam/SigmaX/Values = %i ', cutNumOfBixel);
-                        fprintf(fileID,'%f ',[dataTOPAS.spotSizeX]);
+                        fprintf(fileID,'%f ',[dataTOPAS.spotSize]);
                         fprintf(fileID,' mm\n');
                         fprintf(fileID,'s:Tf/Beam/SigmaXPrime/Function = "Step"\n');
                         fprintf(fileID,'dv:Tf/Beam/SigmaXPrime/Times = Tf/Beam/Spot/Times ms\n');
                         fprintf(fileID,'uv:Tf/Beam/SigmaXPrime/Values = %i ', cutNumOfBixel);
-                        fprintf(fileID,'%f ',[dataTOPAS.divergenceX]);
+                        fprintf(fileID,'%f ',[dataTOPAS.divergence]);
                         fprintf(fileID,'\n');
                         fprintf(fileID,'s:Tf/Beam/CorrelationX/Function = "Step"\n');
                         fprintf(fileID,'dv:Tf/Beam/CorrelationX/Times = Tf/Beam/Spot/Times ms\n');
                         fprintf(fileID,'uv:Tf/Beam/CorrelationX/Values = %i ', cutNumOfBixel);
-                        fprintf(fileID,'%f ',[dataTOPAS.correlationX]);
+                        fprintf(fileID,'%f ',[dataTOPAS.correlation]);
                         fprintf(fileID,'\n');
 
                         % Write parameters for second dimension (profile is uniform)
                         fprintf(fileID,'s:Tf/Beam/SigmaY/Function = "Step"\n');
                         fprintf(fileID,'dv:Tf/Beam/SigmaY/Times = Tf/Beam/Spot/Times ms\n');
                         fprintf(fileID,'dv:Tf/Beam/SigmaY/Values = %i ', cutNumOfBixel);
-                        fprintf(fileID,'%f ',[dataTOPAS.spotSizeY]);
+                        fprintf(fileID,'%f ',[dataTOPAS.spotSize]);
                         fprintf(fileID,' mm\n');
                         fprintf(fileID,'s:Tf/Beam/SigmaYPrime/Function = "Step"\n');
                         fprintf(fileID,'dv:Tf/Beam/SigmaYPrime/Times = Tf/Beam/Spot/Times ms\n');
                         fprintf(fileID,'uv:Tf/Beam/SigmaYPrime/Values = %i ', cutNumOfBixel);
-                        fprintf(fileID,'%f ',[dataTOPAS.divergenceY]);
+                        fprintf(fileID,'%f ',[dataTOPAS.divergence]);
                         fprintf(fileID,'\n');
                         fprintf(fileID,'s:Tf/Beam/CorrelationY/Function = "Step"\n');
                         fprintf(fileID,'dv:Tf/Beam/CorrelationY/Times = Tf/Beam/Spot/Times ms\n');
                         fprintf(fileID,'uv:Tf/Beam/CorrelationY/Values = %i ', cutNumOfBixel);
-                        fprintf(fileID,'%f ',[dataTOPAS.correlationY]);
+                        fprintf(fileID,'%f ',[dataTOPAS.correlation]);
                         fprintf(fileID,'\n');
 
                     case 'simple'
@@ -1550,6 +1597,45 @@ classdef matRad_TopasConfig < handle
                             fprintf(fileID,'d:So/PencilBeam/BeamPositionSpreadX = %d mm\n', 30);
                             fprintf(fileID,'d:So/PencilBeam/BeamPositionSpreadY = %d mm\n', 30);
                         end
+                        
+                    case 'virtualEnergyFluence'
+                        %Primary photon source
+                        fprintf(fileID,'s:So/BeamP1/BeamEnergySpectrumType       = "Continuous"\n');
+                        fprintf(fileID,'dv:So/BeamP1/BeamEnergySpectrumValues    = %i', length(VEFmodel.EnSpectrum));
+                        fprintf(fileID,'%i ',[VEFmodel.EnSpectrum.points]);
+                        fprintf(fileID,' MeV\n');
+                        fprintf(fileID,'uv:So/BeamP1/BeamEnergySpectrumWeights   = %i', length(VEFmodel.EnSpectrum));
+                        fprintf(fileID,'%i \n',[VEFmodel.EnSpectrum.weights./sum(VEFmodel.EnSpectrum.weights)]);
+
+                        fprintf(fileID,'d:So/BeamP1/BeamPositionSpreadX = %d mm\n', VEFmodel.sigma0);
+                        fprintf(fileID,'d:So/BeamP1/BeamPositionSpreadY = %d mm\n', VEFmodel.sigma0);
+                        
+                        %Headscatter/Filter photons
+                        fprintf(fileID,'s:So/BeamP2/BeamEnergySpectrumType       = "Continuous"\n');
+                        fprintf(fileID,'dv:So/BeamP2/BeamEnergySpectrumValues    = %i', length(VEFmodel.EnSpectrum));
+                        fprintf(fileID,'%i ',[VEFmodel.EnSpectrum.points]);
+                        fprintf(fileID,' MeV\n');
+                        fprintf(fileID,'uv:So/BeamP2/BeamEnergySpectrumWeights   = %i', length(VEFmodel.EnSpectrum));
+                        fprintf(fileID,'%i \n',[VEFmodel.EnSpectrum.weights./sum(VEFmodel.EnSpectrum.weights)]);
+
+                        fprintf(fileID,'d:So/BeamP2/BeamPositionSpreadX = %d mm\n', VEFmodel.sigmas);
+                        fprintf(fileID,'d:So/BeamP2/BeamPositionSpreadY = %d mm\n', VEFmodel.sigmas);
+                        
+%                         %Electron contamination --> small influence,
+%                         leave out for now
+%                         fprintf(fileID,'d:So/BeamE/BeamPositionSpreadX = %d mm\n', VEFmodel.sigma0);
+%                         fprintf(fileID,'d:So/BeamE/BeamPositionSpreadY = %d mm\n', VEFmodel.sigma0);
+%                         
+%                         fprintf(fileID,'s:So/BeamE/BeamEnergySpectrumType       = "Continuous"\n');
+%                         fprintf(fileID,'dv:So/BeamE/BeamEnergySpectrumValues    = %i', length(obj.EnSpectrum));
+%                         fprintf(fileID,'%i ',[obj.EnSpectrum.points]);
+%                         fprintf(fileID,' MeV\n');
+%                         fprintf(fileID,'uv:So/BeamE/BeamEnergySpectrumWeights   = %i', length(obj.EnSpectrum));
+%                         fprintf(fileID,'%i \n',[obj.EnSpectrum.weights./sum(obj.EnSpectrum.weights)]);
+% 
+%                         % Use field width for now
+%                         fprintf(fileID,'d:So/BeamE/BeamPositionSpreadX = %d mm\n', VEFmodel.sigmas);
+%                         fprintf(fileID,'d:So/BeamE/BeamPositionSpreadY = %d mm\n', VEFmodel.sigmas);
 
                     case 'uniform'
                         fprintf(fileID,'s:Tf/Beam/EnergySpread/Function = "Step"\n');
@@ -1726,7 +1812,7 @@ classdef matRad_TopasConfig < handle
                     obj.writeScorers(fileID);
 
                     % Write dij-related config lines
-                    % TODO: move this to github issue/todo -> We should discuss here if that's something that has to be available for photons as well
+                    % We should discuss here if that's something that has to be available for photons as well
                     if ~strcmp(obj.radiationMode,'photons')
                         if obj.scorer.calcDij
                             fprintf(fileID,'\n');
@@ -1942,7 +2028,7 @@ classdef matRad_TopasConfig < handle
                             fprintf(fID,['iv:Ge/Patient/SchneiderHounsfieldUnitSections = %i',repmat(' %g',1,numel(densityCorrection.unitSections)),'\n'],numel(densityCorrection.unitSections),densityCorrection.unitSections);
                             fprintf(fID,['uv:Ge/Patient/SchneiderDensityOffset = %i',repmat(' %g',1,numel(densityCorrection.offset)),'\n'],numel(densityCorrection.offset),densityCorrection.offset);
                             % this is needed for a custom fprintf format which formats integers i to 'i.' and floats without trailing zeros
-                            % TODO: check whether this can be removed -> this is potentially not necessary but was done to mimick the original TOPAS Schneider converter file
+                            % this is potentially not necessary but was done to mimick the original TOPAS Schneider converter file
                             TOPASisFloat = mod(densityCorrection.factor,1)==0;
                             fprintf(fID,['uv:Ge/Patient/SchneiderDensityFactor = %i ',strjoin(cellstr(char('%1.01f '.*TOPASisFloat' + '%1.15g '.*~TOPASisFloat'))),'\n'],numel(densityCorrection.factor),densityCorrection.factor);
                             TOPASisFloat = mod(densityCorrection.factorOffset,1)==0;
@@ -2039,7 +2125,7 @@ classdef matRad_TopasConfig < handle
         end
 
         function writeRangeShifter(~,fID,rangeShifter,sourceToNozzleDistance)
-            %TODO: Insert documentation
+
             %Hardcoded PMMA range shifter for now
             pmma_rsp = 1.165;
             rsWidth = rangeShifter.eqThickness / pmma_rsp;
@@ -2057,7 +2143,6 @@ classdef matRad_TopasConfig < handle
         end
 
         function writeMCparam(obj)
-            %TODO: Insert documentation
             %write MCparam file with basic parameters
             MCparam = obj.MCparam;
             save(fullfile(obj.workingDir,'MCparam.mat'),'MCparam','-v7');
