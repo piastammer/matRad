@@ -1,0 +1,36 @@
+s:So/PhotonSource1/BeamParticle = "gamma"
+i:So/PhotonSource1/NumberOfHistoriesInRun = BeamP1/Value
+u:So/PhotonSource1/BeamEnergySpread = BeamP1/EnergySpread/Value
+d:So/PhotonSource1/BeamEnergy = BeamP1/Energy/Value MeV
+s:So/PhotonSource1/BeamPositionCutoffShape = "Ellipse" # Rectangle or Ellipse (if Flat or Gaussian)
+s:So/PhotonSource1/Type = "Beam" # Beam, Isotropic, Emittance or PhaseSpace
+s:So/PhotonSource1/BeamPositionDistribution = "Gaussian" #
+s:So/PhotonSource1/Component = "BeamSpot1"
+d:So/PhotonSource1/BeamPositionCutoffX = 200 mm
+d:So/PhotonSource1/BeamPositionCutoffY = 200 mm
+s:So/PhotonSource1/BeamAngularDistribution = "Flat" # None, Flat or Gaussian
+
+s:So/PhotonSource2/BeamParticle = "gamma"
+i:So/PhotonSource2/NumberOfHistoriesInRun = BeamP2/Value
+u:So/PhotonSource2/BeamEnergySpread = BeamP2/EnergySpread/Value
+d:So/PhotonSource2/BeamEnergy = BeamP2/Energy/Value MeV
+s:So/PhotonSource2/BeamPositionCutoffShape = "Ellipse" # Rectangle or Ellipse (if Flat or Gaussian)
+s:So/PhotonSource2/Type = "Beam" # Beam, Isotropic, Emittance or PhaseSpace
+s:So/PhotonSource2/BeamPositionDistribution = "Gaussian" #
+s:So/PhotonSource2/Component = "BeamSpot2"
+d:So/PhotonSource2/BeamPositionCutoffX = 200 mm
+d:So/PhotonSource2/BeamPositionCutoffY = 200 mm
+s:So/PhotonSource2/BeamAngularDistribution = "Flat" # None, Flat or Gaussian
+
+#Electrons only act as small correction, leave out for now
+#s:So/ElectronSource1/BeamParticle = "e-"
+#i:So/ElectronSource1/NumberOfHistoriesInRun = BeamE/Value
+#u:So/ElectronSource1/BeamEnergySpread = BeamE/EnergySpread/Value
+#d:So/ElectronSource1/BeamEnergy = BeamE/Energy/Value MeV
+#s:So/ElectronSource1/BeamPositionCutoffShape = "Ellipse" # Rectangle or Ellipse (if Flat or Gaussian)
+#s:So/ElectronSource1/Type = "Beam" # Beam, Isotropic, Emittance or PhaseSpace
+#s:So/ElectronSource1/BeamPositionDistribution = "Uniform" #
+#s:So/ElectronSource1/Component = "BeamSpot2"
+#d:So/ElectronSource1/BeamPositionCutoffX = BeamE/sigmaeX mm
+#d:So/ElectronSource1/BeamPositionCutoffY = BeamE/sigmaeY mm
+#s:So/ElectronSource1/BeamAngularDistribution = "Flat" # None, Flat or Gaussian
