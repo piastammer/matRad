@@ -19,6 +19,7 @@ classdef VEFmodel
         wMX
         wMY
         P0 = 0.9;
+        scaling = 1;
         EnSpectrum = 6;
         FWHM
         fluenceParam
@@ -42,6 +43,7 @@ classdef VEFmodel
             obj.wMX = wMX;
             obj.wMY = wMY;
             obj.P0 = P0;
+            obj.scaling = 1;
             obj.EnSpectrum = EnSpectrum;
         end
         
@@ -50,13 +52,14 @@ classdef VEFmodel
             %sodass man sie als input für fitting an messdaten nehmen
             %könnte --> fit the geometrical parameters P0,sigma0,sigmaS,h0,h1,h2,h3, and h4
             obj.P0 = param(1);
-            obj.sigma0 = param(2);
-            obj.sigmas= param(3);
-            h0 = param(4);
-            h1 = param(5);
-            h2 = param(6);
-            h3 = param(7);
-            h4 = param(8);
+            obj.scaling = param(2);
+            obj.sigma0 = param(3);
+            obj.sigmas= param(4);
+            h0 = param(5);
+            h1 = param(6);
+            h2 = param(7);
+            h3 = param(8);
+            h4 = param(9);
             
             ind = [1:length(x)];
             x0p = min((obj.wXI.*obj.zX.*(x(:,3)-obj.z0)+2*x(:,1)*obj.zI.*(obj.z0-obj.zX))./(2.*sqrt(2).*obj.zI.*(x(:,3)-obj.zX)),(obj.wXI.*obj.zM.*(x(:,3)-obj.z0)+2.*x(:,1).*obj.zI.*(obj.z0-obj.zM))./(2.*sqrt(2).*obj.zI.*(x(:,3)-obj.zM)));
@@ -74,7 +77,7 @@ classdef VEFmodel
             p=sqrt(x(:,1).^2+x(:,2).^2)./(x(:,3)-obj.z0);
             F_horn = 1+p.^2.*(h0+h1.*p+h2.*p.^2+h3.*p.^3+h4.*p.^4);
             F_horn(isnan(F_horn)) = 1;
-            F = obj.P0.*F0.*F_horn + (1-obj.P0).*Fs;
+            F = obj.scaling.*(obj.P0.*F0.*F_horn + (1-obj.P0).*Fs);
             
         end
         
@@ -99,17 +102,17 @@ classdef VEFmodel
             obj.wMY = obj.wYI*(obj.zM/obj.zI);
         end
         
-        function writeToFile(obj,fID)
-        %Write initial energy spectrum
-        %Muss noch richtig implementiert werden, siehe auch matRad_TopasConfig Z. 1500ff
-        fprintf(fileID,'s:So/Example/BeamEnergySpectrumType       = "Continuous"\n');
-        fprintf(fileID,'dv:So/Example/BeamEnergySpectrumValues    = %i', length(obj.EnSpectrum));
-        fprintf(fileID,'%i ',[obj.EnSpectrum.points]);
-        fprintf(fileID,' MeV\n');
-        fprintf(fileID,'uv:So/Example/BeamEnergySpectrumWeights   = %i', length(obj.EnSpectrum));
-        fprintf(fileID,'%i \n',[obj.EnSpectrum.weights./sum(obj.EnSpectrum.weights)]);
-        end
-        
+%         function writeToFile(obj,fID)
+%         %Write initial energy spectrum
+%         %Muss noch richtig implementiert werden, siehe auch matRad_TopasConfig Z. 1500ff
+%         fprintf(fileID,'s:So/Example/BeamEnergySpectrumType       = "Continuous"\n');
+%         fprintf(fileID,'dv:So/Example/BeamEnergySpectrumValues    = %i', length(obj.EnSpectrum));
+%         fprintf(fileID,'%i ',[obj.EnSpectrum.points]);
+%         fprintf(fileID,' MeV\n');
+%         fprintf(fileID,'uv:So/Example/BeamEnergySpectrumWeights   = %i', length(obj.EnSpectrum));
+%         fprintf(fileID,'%i \n',[obj.EnSpectrum.weights./sum(obj.EnSpectrum.weights)]);
+%         end
+%         
         function readEnergySpectrum(obj,phaseSpaceFile,fileName,baseData)
         if phaseSpaceFile
             fID = fopen(fileName);
@@ -181,23 +184,28 @@ classdef VEFmodel
             X = X*10;
             X(:,3) = X(:,3) + 1000;
             
+            %normalize data to 0-1 interval (percentage of total dose)
+            y = y./max(y);
+            
             %fit fluence model
             %initial parameter guess
             param0(1) = obj.P0;
-            param0(2) = obj.sigma0;
-            param0(3) = obj.sigmas;
-            param0(4) = 0;
+            param0(2) = obj.scaling;
+            param0(3) = obj.sigma0;
+            param0(4) = obj.sigmas;
             param0(5) = 0;
             param0(6) = 0;
             param0(7) = 0;
-            param0(8) =0;
+            param0(8) = 0;
+            param0(9) =0;
             
             %Set constraints
-            lb = [0,0,0,-Inf,-Inf,-Inf,-Inf,-Inf]; %maybe all of them are positive? lb = [0,0,0,0,0,0,0,0];
-            ub = [1,Inf,Inf,Inf,Inf,Inf,Inf,Inf];
-
-            params = lsqcurvefit(@obj.fluenceModel,param0,X,y,lb,ub);
-            %params = nlinfit(X,y,@obj.fluenceModel,param0);
+            lb = [0,-Inf,0,0,-Inf,-Inf,-Inf,-Inf,-Inf]; %maybe all of them are positive? lb = [0,0,0,0,0,0,0,0];
+            ub = [1,Inf,Inf,Inf,Inf,Inf,Inf,Inf,Inf];
+            
+            options = optimoptions('lsqcurvefit','Algorithm','trust-region-reflective' ,'MaxFunctionEvaluations',1e6,'MaxIterations',1e6) %To plot convergence: 'PlotFcn','optimplotfirstorderopt')
+            params = lsqcurvefit(@obj.fluenceModel,param0,X,y,lb,ub,options);
+            %params2 = nlinfit(X,y,@obj.fluenceModel,param0);
             obj.fluenceParam = params;
         end
     end
