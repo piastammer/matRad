@@ -1599,32 +1599,46 @@ classdef matRad_TopasConfig < handle
                         end
                         
                     case 'virtualEnergyFluence'
+                        %Create virtual fluence model
+                        VEF = VEFmodel();
+                        VEF = VEF.setDefaultProperties();
+                        VEF = VEF.fitToData("HalcyonBeamData.xlsx");
+                        
                         %Primary photon source
+                        fprintf(fileID,'s:Ge/BeamSpot1/Parent = "Nozzle"\n');
+                        fprintf(fileID,'s:Ge/BeamSpot1/Type = "Group"\n');
+                        fprintf(fileID,'d:Ge/BeamSpot1/TransZ = -%d mm',VEF.zI - VEF.z0);
+
                         fprintf(fileID,'s:So/BeamP1/BeamEnergySpectrumType       = "Continuous"\n');
-                        fprintf(fileID,'dv:So/BeamP1/BeamEnergySpectrumValues    = %i', length(VEFmodel.EnSpectrum));
-                        fprintf(fileID,'%i ',[VEFmodel.EnSpectrum.points]);
+                        fprintf(fileID,'dv:So/BeamP1/BeamEnergySpectrumValues    = %i', length(VEF.EnSpectrum));
+                        fprintf(fileID,'%i ',[VEF.EnSpectrum.points]);
                         fprintf(fileID,' MeV\n');
-                        fprintf(fileID,'uv:So/BeamP1/BeamEnergySpectrumWeights   = %i', length(VEFmodel.EnSpectrum));
-                        fprintf(fileID,'%i \n',[VEFmodel.EnSpectrum.weights./sum(VEFmodel.EnSpectrum.weights)]);
+                        fprintf(fileID,'uv:So/BeamP1/BeamEnergySpectrumWeights   = %i', length(VEF.EnSpectrum));
+                        fprintf(fileID,'%i \n',[VEF.EnSpectrum.weights./sum(VEF.EnSpectrum.weights)]);
 
-                        fprintf(fileID,'d:So/BeamP1/BeamPositionSpreadX = %d mm\n', VEFmodel.sigma0);
-                        fprintf(fileID,'d:So/BeamP1/BeamPositionSpreadY = %d mm\n', VEFmodel.sigma0);
-                        
+                        fprintf(fileID,'d:So/BeamP1/BeamPositionSpreadX = %d mm\n', VEF.sigma0);
+                        fprintf(fileID,'d:So/BeamP1/BeamPositionSpreadY = %d mm\n', VEF.sigma0);
+                        fprintf(fileID,'d:So/BeamP1/Value = %d \n', VEF.P0 * numHistories);
+                                        
                         %Headscatter/Filter photons
-                        fprintf(fileID,'s:So/BeamP2/BeamEnergySpectrumType       = "Continuous"\n');
-                        fprintf(fileID,'dv:So/BeamP2/BeamEnergySpectrumValues    = %i', length(VEFmodel.EnSpectrum));
-                        fprintf(fileID,'%i ',[VEFmodel.EnSpectrum.points]);
-                        fprintf(fileID,' MeV\n');
-                        fprintf(fileID,'uv:So/BeamP2/BeamEnergySpectrumWeights   = %i', length(VEFmodel.EnSpectrum));
-                        fprintf(fileID,'%i \n',[VEFmodel.EnSpectrum.weights./sum(VEFmodel.EnSpectrum.weights)]);
-
-                        fprintf(fileID,'d:So/BeamP2/BeamPositionSpreadX = %d mm\n', VEFmodel.sigmas);
-                        fprintf(fileID,'d:So/BeamP2/BeamPositionSpreadY = %d mm\n', VEFmodel.sigmas);
+                        fprintf(fileID,'s:Ge/BeamSpot2/Parent = "Nozzle"\n');
+                        fprintf(fileID,'s:Ge/BeamSpot2/Type = "Group"\n');
+                        fprintf(fileID,'d:Ge/BeamSpot2/TransZ = -%d mm',VEF.zI - VEF.zs);
                         
+                        fprintf(fileID,'s:So/BeamP2/BeamEnergySpectrumType       = "Continuous"\n');
+                        fprintf(fileID,'dv:So/BeamP2/BeamEnergySpectrumValues    = %i', length(VEF.EnSpectrum));
+                        fprintf(fileID,'%i ',[VEF.EnSpectrum.points]);
+                        fprintf(fileID,' MeV\n');
+                        fprintf(fileID,'uv:So/BeamP2/BeamEnergySpectrumWeights   = %i', length(VEF.EnSpectrum));
+                        fprintf(fileID,'%i \n',[VEF.EnSpectrum.weights./sum(VEF.EnSpectrum.weights)]);
+
+                        fprintf(fileID,'d:So/BeamP2/BeamPositionSpreadX = %d mm\n', VEF.sigmas);
+                        fprintf(fileID,'d:So/BeamP2/BeamPositionSpreadY = %d mm\n', VEF.sigmas);
+                        fprintf(fileID,'d:So/BeamP2/Value = %d \n', (1 - VEF.P0) * numHistories);
 %                         %Electron contamination --> small influence,
 %                         leave out for now
-%                         fprintf(fileID,'d:So/BeamE/BeamPositionSpreadX = %d mm\n', VEFmodel.sigma0);
-%                         fprintf(fileID,'d:So/BeamE/BeamPositionSpreadY = %d mm\n', VEFmodel.sigma0);
+%                         fprintf(fileID,'d:So/BeamE/BeamPositionSpreadX = %d mm\n', VEF.sigma0);
+%                         fprintf(fileID,'d:So/BeamE/BeamPositionSpreadY = %d mm\n', VEF.sigma0);
 %                         
 %                         fprintf(fileID,'s:So/BeamE/BeamEnergySpectrumType       = "Continuous"\n');
 %                         fprintf(fileID,'dv:So/BeamE/BeamEnergySpectrumValues    = %i', length(obj.EnSpectrum));
@@ -1634,8 +1648,8 @@ classdef matRad_TopasConfig < handle
 %                         fprintf(fileID,'%i \n',[obj.EnSpectrum.weights./sum(obj.EnSpectrum.weights)]);
 % 
 %                         % Use field width for now
-%                         fprintf(fileID,'d:So/BeamE/BeamPositionSpreadX = %d mm\n', VEFmodel.sigmas);
-%                         fprintf(fileID,'d:So/BeamE/BeamPositionSpreadY = %d mm\n', VEFmodel.sigmas);
+%                         fprintf(fileID,'d:So/BeamE/BeamPositionSpreadX = %d mm\n', VEF.sigmas);
+%                         fprintf(fileID,'d:So/BeamE/BeamPositionSpreadY = %d mm\n', VEF.sigmas);
 
                     case 'uniform'
                         fprintf(fileID,'s:Tf/Beam/EnergySpread/Function = "Step"\n');
