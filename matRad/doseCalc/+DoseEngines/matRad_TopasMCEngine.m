@@ -1497,7 +1497,7 @@ classdef matRad_TopasMCEngine < DoseEngines.matRad_MonteCarloEngineAbstract
                 SAD = stf(beamIx).SAD;
 
                 if isPhoton
-                    nozzleToAxisDistance = SAD;
+                    nozzleToAxisDistance = stf(beamIx).SCD;
                     sourceToNozzleDistance = 0;
                 else
                     nozzleToAxisDistance = baseData.nozzleToIso;
