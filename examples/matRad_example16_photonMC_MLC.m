@@ -89,7 +89,7 @@ imagesc(resultGUI.physicalDose(:,:,slice)),colorbar, colormap(jet)
 %% Dose Calculation
 %resultGUI_MC = matRad_calcDoseInfluence(ct,cst,stf,pln);
 pln.propDoseCalc.engine = 'TOPAS';
-pln.propDoseCalc.beamProfile = 'phasespace';
+pln.propDoseCalc.beamProfile = 'mlc';
 pln.propDoseCalc.externalCalculation = 'write';
 resultGUI_MC = matRad_calcDoseForward(ct,cst,stf,pln,resultGUI.w);
 
