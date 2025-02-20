@@ -450,6 +450,8 @@ classdef matRad_TopasMCEngine < DoseEngines.matRad_MonteCarloEngineAbstract
 
             % Collect given weights
             if this.calcDoseDirect
+                %     w = zeros(sum([stf(:).totalNumOfBixels]),ctR.numOfCtScen);
+                w = zeros(sum([stf(:).totalNumOfBixels]),1);
                 counter = 1;
                 for i = 1:length(stf)
                     for j = 1:stf(i).numOfRays
