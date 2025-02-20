@@ -25,16 +25,14 @@ matRad_rc %If this throws an error, run it from the parent directory first to se
 %% Patient Data Import
 % Let's begin with a clear Matlab environment and import the boxphantom
 % into your workspace. 
-load('BOXPHANTOM.mat');
-
-%% Treatment Plan
+load('TG119.mat')
 % The next step is to define your treatment plan labeled as 'pln'. This 
 % structure requires input from the treatment planner and defines the most
 % important cornerstones of your treatment plan.
 
 pln.radiationMode           = 'photons';  
 pln.machine                 = 'Generic';
-pln.numOfFractions          = 30;
+pln.numOfFractions          = 1;
 pln.propStf.gantryAngles    = [0:72:359];
 pln.propStf.couchAngles     = [0 0 0 0 0];
 %pln.propStf.gantryAngles    = [0];
@@ -79,12 +77,6 @@ resultGUI = matRad_siochiLeafSequencing(resultGUI,stf,dij,5,1);
 %% Aperture visualization
 % Use a matrad function to visualize the resulting aperture shapes
 matRad_visApertureInfo(resultGUI.apertureInfo)
-%% Plot the Resulting Dose Slice
-% Just let's plot the transversal iso-center dose slice
-slice = matRad_world2cubeIndex(pln.propStf.isoCenter(1,:),ct);
-slice = slice(3);
-figure,
-imagesc(resultGUI.physicalDose(:,:,slice)),colorbar, colormap(jet)
 
 %% Dose Calculation
 %resultGUI_MC = matRad_calcDoseInfluence(ct,cst,stf,pln);
@@ -94,6 +86,18 @@ pln.propDoseCalc.externalCalculation = 'write';
 resultGUI_MC = matRad_calcDoseForward(ct,cst,stf,pln,resultGUI.w);
 
 %% readout
-waitforbuttonpress; %We will wait since we do need to do the external calculation first
+%waitforbuttonpress; %We will wait since we do need to do the external calculation first
 pln.propDoseCalc.externalCalculation = resultGUI_MC.meta.TOPASworkingDir;
 resultGUI_MC = matRad_calcDoseForward(ct,cst,stf,pln,resultGUI.w);
+
+%% Plot and compare the Resulting Dose Slices
+plane      = 3;
+slice = matRad_world2cubeIndex(pln.propStf.isoCenter(1,:),ct);
+slice = slice(3);
+doseWindow = [0 max(resultGUI.physicalDose(:))];
+doseWindow_MC = [0 max(resultGUI_MC.physicalDose(:))];
+
+figure,title('original plan - matRad pencil beam')
+matRad_plotSliceWrapper(gca,ct,cst,1,resultGUI.physicalDose,plane,slice,[],0.75,colorcube,[],doseWindow,[]);
+figure,title('recalculated plan - TOPAS MC')
+matRad_plotSliceWrapper(gca,ct,cst,1,resultGUI_MC.physicalDose,plane,slice,[],0.75,colorcube,[],doseWindow_MC,[]);

@@ -99,7 +99,7 @@ classdef matRad_TopasMCEngine < DoseEngines.matRad_MonteCarloEngineAbstract
             'sharedSubscorers',true,...
             'outputType','binary',... %'csv'; 'binary';%
             ... % This variable is only used for physicalDose, since for now it adds unnecessary computation time
-            'reportQuantity',{{'Sum','Standard_Deviation'}});         % 'reportQuantity',{{'Sum'}});
+            'reportQuantity',{{'Sum'}}); %'reportQuantity',{{'Sum','Standard_Deviation'}})
         scorerRBEmodelOrderForEvaluation = {'MCN','WED','LEM','libamtrack'};
         bioParameters = struct( 'PrescribedDose',2,...
             'AlphaX',0.1,...
@@ -1881,9 +1881,9 @@ classdef matRad_TopasMCEngine < DoseEngines.matRad_MonteCarloEngineAbstract
                             fprintf(fileID,'d:So/PencilBeam/BeamPositionCutoffX = %d mm\n', stf(1).ray.collimation.fieldWidth/2);
                             fprintf(fileID,'d:So/PencilBeam/BeamPositionCutoffY = %d mm\n', stf(1).ray.collimation.fieldWidth/2);
                         else
-                            % Set some default value
-                            fprintf(fileID,'d:So/PencilBeam/BeamPositionCutoffX = %d mm\n', 15);
-                            fprintf(fileID,'d:So/PencilBeam/BeamPositionCutoffY = %d mm\n', 15);
+                            % Set some default value (like kernel cutoff in PB)
+                            fprintf(fileID,'d:So/PencilBeam/BeamPositionCutoffX = %d mm\n', 20); 
+                            fprintf(fileID,'d:So/PencilBeam/BeamPositionCutoffY = %d mm\n', 20);
                         end
 
                     case 'phasespace'
