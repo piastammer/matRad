@@ -450,8 +450,6 @@ classdef matRad_TopasMCEngine < DoseEngines.matRad_MonteCarloEngineAbstract
 
             % Collect given weights
             if this.calcDoseDirect
-                %     w = zeros(sum([stf(:).totalNumOfBixels]),ctR.numOfCtScen);
-                w = zeros(sum([stf(:).totalNumOfBixels]),1);
                 counter = 1;
                 for i = 1:length(stf)
                     for j = 1:stf(i).numOfRays
@@ -466,10 +464,12 @@ classdef matRad_TopasMCEngine < DoseEngines.matRad_MonteCarloEngineAbstract
                 end
             end
             
-            for i = 1:numel(stf)
-                if strcmp(stf(i).radiationMode,'photons')
-                    stf(i).ray.energy = stf(i).ray.energy.*ones(size(w));
-                end
+             for i = 1:numel(stf)
+                 if strcmp(stf(i).radiationMode,'photons')
+                     for j=1:length(stf(i).ray)
+                        stf(i).ray(j).energy = stf(i).ray(j).energy.*ones(size(w));
+                     end
+                 end
             end            
 
             % Get photon parameters for RBExDose calculation
@@ -1711,7 +1711,7 @@ classdef matRad_TopasMCEngine < DoseEngines.matRad_MonteCarloEngineAbstract
                         fprintf(fileID,'s:Sim/ParticleName = "proton"\n');
                         fprintf(fileID,'u:Sim/ParticleMass = 1.0\n');
 
-                        particleA = 1;
+                        energyScalingFactor = 1; %need to scale energy with atomic number as TOPAS uses total energy 
                         % particleZ = 1;
 
                         modules = obj.modules_protons;
@@ -1720,7 +1720,7 @@ classdef matRad_TopasMCEngine < DoseEngines.matRad_MonteCarloEngineAbstract
                         fprintf(fileID,'s:Sim/ParticleName = "GenericIon(6,12)"\n');
                         fprintf(fileID,'u:Sim/ParticleMass = 12.0\n');
 
-                        particleA = 12;
+                        energyScalingFactor = 12; %need to scale energy with atomic number as TOPAS uses total energy
                         % particleZ = 6;
 
                         modules = obj.modules_GenericIon;
@@ -1729,7 +1729,7 @@ classdef matRad_TopasMCEngine < DoseEngines.matRad_MonteCarloEngineAbstract
                         fprintf(fileID,'s:Sim/ParticleName = "GenericIon(2,4)"\n');
                         fprintf(fileID,'u:Sim/ParticleMass = 4.0\n');
 
-                        particleA = 4;
+                        energyScalingFactor = 4; %need to scale energy with atomic number as TOPAS uses total energy
                         % particleZ = 2;
 
                         modules = obj.modules_GenericIon;
@@ -1738,7 +1738,7 @@ classdef matRad_TopasMCEngine < DoseEngines.matRad_MonteCarloEngineAbstract
                         fprintf(fileID,'s:Sim/ParticleName = "gamma"\n');
                         fprintf(fileID,'u:Sim/ParticleMass = 0\n');
 
-                        particleA = 0;
+                        energyScalingFactor = 1; %no scaling necessary for photons
                         % particleZ = 0;
 
                         modules = obj.modules_photons;
@@ -1778,7 +1778,7 @@ classdef matRad_TopasMCEngine < DoseEngines.matRad_MonteCarloEngineAbstract
                         for spectrumPoint=1:nbSpectrumPoints
                             fprintf(fileID,'s:Tf/Beam/EnergySpectrum/Energy/Point%03d/Function = "Step"\n',spectrumPoint);
                             fprintf(fileID,'dv:Tf/Beam/EnergySpectrum/Energy/Point%03d/Times = Tf/Beam/Spot/Times ms\n',spectrumPoint);
-                            fprintf(fileID,'dv:Tf/Beam/EnergySpectrum/Energy/Point%03d/Values = %d %s MeV\n',spectrumPoint,cutNumOfBixel,strtrim(sprintf('%f ',particleA*points_energy(spectrumPoint,:))));
+                            fprintf(fileID,'dv:Tf/Beam/EnergySpectrum/Energy/Point%03d/Values = %d %s MeV\n',spectrumPoint,cutNumOfBixel,strtrim(sprintf('%f ',energyScalingFactor*points_energy(spectrumPoint,:))));
                             fprintf(fileID,'s:Tf/Beam/EnergySpectrum/Weight/Point%03d/Function = "Step"\n',spectrumPoint);
                             fprintf(fileID,'dv:Tf/Beam/EnergySpectrum/Weight/Point%03d/Times = Tf/Beam/Spot/Times ms\n',spectrumPoint);
                             fprintf(fileID,'uv:Tf/Beam/EnergySpectrum/Weight/Point%03d/Values = %d %s\n',spectrumPoint,cutNumOfBixel,strtrim(sprintf('%f ',points_weight(spectrumPoint,:))));
@@ -1792,7 +1792,7 @@ classdef matRad_TopasMCEngine < DoseEngines.matRad_MonteCarloEngineAbstract
 
                     % Write actual energies
                     % WARNING: Transform total energy with atomic number
-                    fprintf(fileID,'%f ',particleA*[dataTOPAS.energy]);
+                    fprintf(fileID,'%f ',energyScalingFactor*[dataTOPAS.energy]);
                     fprintf(fileID,' MeV\n');
                 end
 

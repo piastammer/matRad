@@ -50,7 +50,7 @@ quantityOpt    = 'physicalDose';
 modelName      = 'none';  
 
 % retrieve bio model parameters
-pln.bioModel = matRad_bioModel(pln.radiationMode,quantityOpt, modelName);
+pln.bioModel = matRad_bioModel(pln.radiationMode,modelName);
 
 % retrieve scenarios for dose calculation and optimziation
 pln.multScen = matRad_NominalScenario(ct);
