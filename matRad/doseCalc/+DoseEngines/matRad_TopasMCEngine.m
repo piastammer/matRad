@@ -428,7 +428,7 @@ classdef matRad_TopasMCEngine < DoseEngines.matRad_MonteCarloEngineAbstract
             % set nested folder structure if external calculation is turned on (this will put new simulations in subfolders)
             if strcmp(this.externalCalculation,'write')
                 this.workingDir = [matRad_cfg.primaryUserFolder filesep 'TOPAS' filesep];
-                this.workingDir = [this.workingDir stf(1).radiationMode,'_',stf(1).machine,'_',datestr(now,'dd-mm-yy-HH:MM')];
+                this.workingDir = [this.workingDir stf(1).radiationMode,'_',stf(1).machine,'_',datestr(now, 'dd-mm-yy')];
             elseif isfolder(this.externalCalculation)
                 dij = this.readExternal(this.externalCalculation);
                 return;

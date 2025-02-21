@@ -81,8 +81,8 @@ resultGUI = matRad_calcCubes(ones(dij.totalNumOfBixels,1),dij); %Use uniform wei
 
 %% Monte Carlo dose calculation
 % select Monte Carlo engine ('MCsquare' very fast for physical protons, 'TOPAS' slow but versatile for everything else)
-pln.propDoseCalc.engine = 'MCsquare';
-%pln.propDoseCalc.engine = 'TOPAS';
+%pln.propDoseCalc.engine = 'MCsquare';
+pln.propDoseCalc.engine = 'TOPAS';
 
 % set number of histories lower than default for this example (default: 1e8)
 pln.propDoseCalc.numHistoriesDirect = 5e6;
