@@ -81,8 +81,9 @@ matRad_visApertureInfo(resultGUI.apertureInfo)
 %% Dose Calculation
 %resultGUI_MC = matRad_calcDoseInfluence(ct,cst,stf,pln);
 pln.propDoseCalc.engine = 'TOPAS';
-pln.propDoseCalc.beamProfile = 'mlc';
+pln.propDoseCalc.beamProfile = 'virtualGaussian';
 pln.propDoseCalc.externalCalculation = 'write';
+pln.propDoseCalc.numHistoriesDirect = 1e7;
 resultGUI_MC = matRad_calcDoseForward(ct,cst,stf,pln,resultGUI.w);
 
 %% readout

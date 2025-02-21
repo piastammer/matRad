@@ -428,7 +428,7 @@ classdef matRad_TopasMCEngine < DoseEngines.matRad_MonteCarloEngineAbstract
             % set nested folder structure if external calculation is turned on (this will put new simulations in subfolders)
             if strcmp(this.externalCalculation,'write')
                 this.workingDir = [matRad_cfg.primaryUserFolder filesep 'TOPAS' filesep];
-                this.workingDir = [this.workingDir stf(1).radiationMode,'_',stf(1).machine,'_',datestr(now, 'dd-mm-yy')];
+                this.workingDir = [this.workingDir stf(1).radiationMode,'_',stf(1).machine,'_',datestr(now,'dd-mm-yy-HH:MM')];
             elseif isfolder(this.externalCalculation)
                 dij = this.readExternal(this.externalCalculation);
                 return;
@@ -1476,18 +1476,13 @@ classdef matRad_TopasMCEngine < DoseEngines.matRad_MonteCarloEngineAbstract
                 case 'virtualGaussian'
                     fname = fullfile(obj.topasFolder,obj.infilenames.beam_virtualGaussian);
                     TOPAS_beamSetup = fileread(fname);
+                    obj.pencilBeamScanning = 0 ;
                     matRad_cfg.dispInfo('Reading ''%s'' Beam Characteristics from ''%s''\n',obj.beamProfile,fname);
 
                 case 'uniform'
                     fname = fullfile(obj.topasFolder,obj.infilenames.beam_uniform);
                     TOPAS_beamSetup = fileread(fname);
                     matRad_cfg.dispInfo('Reading ''%s'' Beam Characteristics from ''%s''\n',obj.beamProfile,fname);
-                
-                case 'mlc'
-                    fname = fullfile(obj.topasFolder,obj.infilenames.beam_mlc);
-                    TOPAS_beamSetup = fileread(fname);
-                    matRad_cfg.dispInfo('Reading ''%s'' Beam Characteristics from ''%s''\n',obj.beamProfile,fname);
-
                 otherwise
                     matRad_cfg.dispError('Beam Type ''%s'' not supported for photons',obj.beamProfile);
 
@@ -1498,6 +1493,7 @@ classdef matRad_TopasMCEngine < DoseEngines.matRad_MonteCarloEngineAbstract
             currentBixel = 1;
             bixelNotMeetingParticleQuota = 0;
             historyCount = zeros(1,length(stf));
+
 
             for beamIx = 1:length(stf)
 
@@ -1556,90 +1552,154 @@ classdef matRad_TopasMCEngine < DoseEngines.matRad_MonteCarloEngineAbstract
 
                 % Clear dataTOPAS from the previous beam
                 dataTOPAS = [];
-
-                %Loop over rays and then over spots on ray
-                for rayIx = 1:stf(beamIx).numOfRays
-                    for bixelIx = 1:stf(beamIx).numOfBixelsPerRay(rayIx)
-
-                        nCurrentParticles = nParticlesTotalBixel(currentBixel);
-
-                        % check whether there are (enough) particles for beam delivery
-                        if (nCurrentParticles>minParticlesBixel)
-
-                            %                             collectBixelIdx(end+1) = bixelIx;
-                            cutNumOfBixel = cutNumOfBixel + 1;
-                            bixelEnergy = stf(beamIx).ray(rayIx).energy(bixelIx);
-
-                            dataTOPAS(cutNumOfBixel).posX = stf(beamIx).ray(rayIx).rayPos_bev(3);
-                            dataTOPAS(cutNumOfBixel).posY = stf(beamIx).ray(rayIx).rayPos_bev(1);
-
-                            dataTOPAS(cutNumOfBixel).current = uint32(obj.fracHistories * nCurrentParticles / obj.numOfRuns);
-
-                            if obj.pencilBeamScanning
-                                % angleX corresponds to the rotation around the X axis necessary to move the spot in the Y direction
-                                % angleY corresponds to the rotation around the Y' axis necessary to move the spot in the X direction
-                                % note that Y' corresponds to the Y axis after the rotation of angleX around X axis
-                                % note that Y translates to -Y for TOPAS
-                                dataTOPAS(cutNumOfBixel).angleX = atan(dataTOPAS(cutNumOfBixel).posY / SAD);
-                                dataTOPAS(cutNumOfBixel).angleY = atan(-dataTOPAS(cutNumOfBixel).posX ./ (SAD ./ cos(dataTOPAS(cutNumOfBixel).angleX)));
-                                % Translate posX and posY to patient coordinates
-                                dataTOPAS(cutNumOfBixel).posX = (dataTOPAS(cutNumOfBixel).posX / SAD)*(SAD-nozzleToAxisDistance);
-                                dataTOPAS(cutNumOfBixel).posY = (dataTOPAS(cutNumOfBixel).posY / SAD)*(SAD-nozzleToAxisDistance);
-                            end
-
-                            switch obj.radiationMode
-                                case {'protons','carbon','helium'}
-                                    [~,ixTmp,~] = intersect(energies, bixelEnergy);
-                                    if obj.useOrigBaseData
-                                        dataTOPAS(cutNumOfBixel).energy = selectedData(ixTmp).energy;
-                                        dataTOPAS(cutNumOfBixel).focusFWHM = selectedData(ixTmp).initFocus.SisFWHMAtIso(stf(beamIx).ray(rayIx).focusIx(bixelIx));
-
-                                    else
-                                        dataTOPAS(cutNumOfBixel).energy = selectedData(ixTmp).MeanEnergy;
-                                        dataTOPAS(cutNumOfBixel).nominalEnergy = selectedData(ixTmp).NominalEnergy;
-                                        dataTOPAS(cutNumOfBixel).energySpread = selectedData(ixTmp).EnergySpread;
-                                        dataTOPAS(cutNumOfBixel).spotSizeX = selectedData(ixTmp).SpotSize1x;
-                                        dataTOPAS(cutNumOfBixel).divergenceX = selectedData(ixTmp).Divergence1x;
-                                        dataTOPAS(cutNumOfBixel).correlationX = selectedData(ixTmp).Correlation1x;
-                                        dataTOPAS(cutNumOfBixel).spotSizeY = selectedData(ixTmp).SpotSize1y;
-                                        dataTOPAS(cutNumOfBixel).divergenceY = selectedData(ixTmp).Divergence1y;
-                                        dataTOPAS(cutNumOfBixel).correlationY = selectedData(ixTmp).Correlation1y;
-                                        dataTOPAS(cutNumOfBixel).focusFWHM = selectedData(ixTmp).FWHMatIso;
+                switch obj.beamProfile
+                    case 'virtualGaussian'
+                         nCurrentParticles = sum(nParticlesTotalBixel(currentBixel:currentBixel+stf(beamIx).numOfBixelsPerRay-1));
+                                % check whether there are (enough) particles for beam delivery
+                                if (nCurrentParticles>minParticlesBixel)
+        
+                                    bixelEnergy = stf(beamIx).ray(1).energy(1);
+        
+                                    dataTOPAS.posX = stf(beamIx).ray(1).rayPos_bev(3);
+                                    dataTOPAS.posY = stf(beamIx).ray(1).rayPos_bev(1);
+        
+                                    dataTOPAS.current = uint32(obj.fracHistories * nCurrentParticles / obj.numOfRuns);
+                
+                                    switch obj.radiationMode
+                                        case {'protons','carbon','helium'}
+                                            matRad_cfg.dispDebug('Use of virtual Gaussian source not tested with chosen radiation mode, might lead to unintended behavior.');
+                                            [~,ixTmp,~] = intersect(energies, bixelEnergy);
+                                            if obj.useOrigBaseData
+                                                dataTOPAS.energy = selectedData(ixTmp).energy;
+                                                dataTOPAS.focusFWHM = selectedData(ixTmp).initFocus.SisFWHMAtIso(stf(beamIx).ray(rayIx).focusIx(bixelIx));
+        
+                                            else
+                                                dataTOPAS.energy = selectedData(ixTmp).MeanEnergy;
+                                                dataTOPAS.nominalEnergy = selectedData(ixTmp).NominalEnergy;
+                                                dataTOPAS.energySpread = selectedData(ixTmp).EnergySpread;
+                                                dataTOPAS.spotSizeX = selectedData(ixTmp).SpotSize1x;
+                                                dataTOPAS.divergenceX = selectedData(ixTmp).Divergence1x;
+                                                dataTOPAS.correlationX = selectedData(ixTmp).Correlation1x;
+                                                dataTOPAS.spotSizeY = selectedData(ixTmp).SpotSize1y;
+                                                dataTOPAS.divergenceY = selectedData(ixTmp).Divergence1y;
+                                                dataTOPAS.correlationY = selectedData(ixTmp).Correlation1y;
+                                                dataTOPAS.focusFWHM = selectedData(ixTmp).FWHMatIso;
+                                            end
+                                        case 'photons'
+                                            dataTOPAS.energy = bixelEnergy;
+                                            dataTOPAS.energySpread = 0;
                                     end
-                                case 'photons'
-                                    dataTOPAS(cutNumOfBixel).energy = bixelEnergy;
-                                    dataTOPAS(cutNumOfBixel).energySpread = 0;
-                            end
-
-                            if obj.scorer.calcDij
-                                % remember beam and bixel number
-                                dataTOPAS(cutNumOfBixel).beam           = beamIx;
-                                dataTOPAS(cutNumOfBixel).ray            = rayIx;
-                                dataTOPAS(cutNumOfBixel).bixel          = bixelIx;
-                                dataTOPAS(cutNumOfBixel).totalBixel     = currentBixel;
-                            end
-
-                            %Add RangeShifterState
-                            if exist('raShis','var') && ~isempty(raShis)
-                                raShiOut = zeros(1,length(raShis));
-                                for r = 1:length(raShis)
-                                    if stf(beamIx).ray(rayIx).rangeShifter(bixelIx).ID == raShis(r).ID
-                                        raShiOut(r) = 0; %Range shifter is in beam path
-                                    else
-                                        raShiOut(r) = 1; %Range shifter is out of beam path / not used
+        
+                                    if obj.scorer.calcDij
+                                        matRad_cfg.dispDebug('Dij calculation with TOPAS MC currently only available using pencil beam scanning with uniform sources.');
+                                        % remember beam and bixel number
+                                        dataTOPAS(1).beam           = beamIx;
+                                        dataTOPAS(1).ray            = rayIx;
+                                        dataTOPAS(1).bixel          = bixelIx;
+                                        dataTOPAS(1).totalBixel     = currentBixel;
                                     end
+        
+                                    %Add RangeShifterState
+                                    if exist('raShis','var') && ~isempty(raShis)
+                                        raShiOut = zeros(1,length(raShis));
+                                        for r = 1:length(raShis)
+                                            if stf(beamIx).ray(1).rangeShifter(1).ID == raShis(r).ID
+                                                raShiOut(r) = 0; %Range shifter is in beam path
+                                            else
+                                                raShiOut(r) = 1; %Range shifter is out of beam path / not used
+                                            end
+                                        end
+                                        dataTOPAS.raShiOut = raShiOut;
+                                    end
+        
+                                    nBeamParticlesTotal(beamIx) = nCurrentParticles;
                                 end
-                                dataTOPAS(cutNumOfBixel).raShiOut = raShiOut;
+                                currentBixel = currentBixel+stf(beamIx).numOfBixelsPerRay;
+                    otherwise
+                        %Loop over rays and then over spots on ray
+                        for rayIx = 1:stf(beamIx).numOfRays
+                            for bixelIx = 1:stf(beamIx).numOfBixelsPerRay(rayIx)
+        
+                                nCurrentParticles = nParticlesTotalBixel(currentBixel);
+        
+                                % check whether there are (enough) particles for beam delivery
+                                if (nCurrentParticles>minParticlesBixel)
+        
+                                    %                             collectBixelIdx(end+1) = bixelIx;
+                                    cutNumOfBixel = cutNumOfBixel + 1;
+                                    bixelEnergy = stf(beamIx).ray(rayIx).energy(bixelIx);
+        
+                                    dataTOPAS(cutNumOfBixel).posX = stf(beamIx).ray(rayIx).rayPos_bev(3);
+                                    dataTOPAS(cutNumOfBixel).posY = stf(beamIx).ray(rayIx).rayPos_bev(1);
+        
+                                    dataTOPAS(cutNumOfBixel).current = uint32(obj.fracHistories * nCurrentParticles / obj.numOfRuns);
+        
+                                    if obj.pencilBeamScanning
+                                        % angleX corresponds to the rotation around the X axis necessary to move the spot in the Y direction
+                                        % angleY corresponds to the rotation around the Y' axis necessary to move the spot in the X direction
+                                        % note that Y' corresponds to the Y axis after the rotation of angleX around X axis
+                                        % note that Y translates to -Y for TOPAS
+                                        dataTOPAS(cutNumOfBixel).angleX = atan(dataTOPAS(cutNumOfBixel).posY / SAD);
+                                        dataTOPAS(cutNumOfBixel).angleY = atan(-dataTOPAS(cutNumOfBixel).posX ./ (SAD ./ cos(dataTOPAS(cutNumOfBixel).angleX)));
+                                        % Translate posX and posY to patient coordinates
+                                        dataTOPAS(cutNumOfBixel).posX = (dataTOPAS(cutNumOfBixel).posX / SAD)*(SAD-nozzleToAxisDistance);
+                                        dataTOPAS(cutNumOfBixel).posY = (dataTOPAS(cutNumOfBixel).posY / SAD)*(SAD-nozzleToAxisDistance);
+                                    end
+        
+                                    switch obj.radiationMode
+                                        case {'protons','carbon','helium'}
+                                            [~,ixTmp,~] = intersect(energies, bixelEnergy);
+                                            if obj.useOrigBaseData
+                                                dataTOPAS(cutNumOfBixel).energy = selectedData(ixTmp).energy;
+                                                dataTOPAS(cutNumOfBixel).focusFWHM = selectedData(ixTmp).initFocus.SisFWHMAtIso(stf(beamIx).ray(rayIx).focusIx(bixelIx));
+        
+                                            else
+                                                dataTOPAS(cutNumOfBixel).energy = selectedData(ixTmp).MeanEnergy;
+                                                dataTOPAS(cutNumOfBixel).nominalEnergy = selectedData(ixTmp).NominalEnergy;
+                                                dataTOPAS(cutNumOfBixel).energySpread = selectedData(ixTmp).EnergySpread;
+                                                dataTOPAS(cutNumOfBixel).spotSizeX = selectedData(ixTmp).SpotSize1x;
+                                                dataTOPAS(cutNumOfBixel).divergenceX = selectedData(ixTmp).Divergence1x;
+                                                dataTOPAS(cutNumOfBixel).correlationX = selectedData(ixTmp).Correlation1x;
+                                                dataTOPAS(cutNumOfBixel).spotSizeY = selectedData(ixTmp).SpotSize1y;
+                                                dataTOPAS(cutNumOfBixel).divergenceY = selectedData(ixTmp).Divergence1y;
+                                                dataTOPAS(cutNumOfBixel).correlationY = selectedData(ixTmp).Correlation1y;
+                                                dataTOPAS(cutNumOfBixel).focusFWHM = selectedData(ixTmp).FWHMatIso;
+                                            end
+                                        case 'photons'
+                                            dataTOPAS(cutNumOfBixel).energy = bixelEnergy;
+                                            dataTOPAS(cutNumOfBixel).energySpread = 0;
+                                    end
+        
+                                    if obj.scorer.calcDij
+                                        % remember beam and bixel number
+                                        dataTOPAS(cutNumOfBixel).beam           = beamIx;
+                                        dataTOPAS(cutNumOfBixel).ray            = rayIx;
+                                        dataTOPAS(cutNumOfBixel).bixel          = bixelIx;
+                                        dataTOPAS(cutNumOfBixel).totalBixel     = currentBixel;
+                                    end
+        
+                                    %Add RangeShifterState
+                                    if exist('raShis','var') && ~isempty(raShis)
+                                        raShiOut = zeros(1,length(raShis));
+                                        for r = 1:length(raShis)
+                                            if stf(beamIx).ray(rayIx).rangeShifter(bixelIx).ID == raShis(r).ID
+                                                raShiOut(r) = 0; %Range shifter is in beam path
+                                            else
+                                                raShiOut(r) = 1; %Range shifter is out of beam path / not used
+                                            end
+                                        end
+                                        dataTOPAS(cutNumOfBixel).raShiOut = raShiOut;
+                                    end
+        
+                                    nBeamParticlesTotal(beamIx) = nBeamParticlesTotal(beamIx) + nCurrentParticles;
+        
+        
+                                end
+        
+                                currentBixel = currentBixel + 1;
+        
                             end
-
-                            nBeamParticlesTotal(beamIx) = nBeamParticlesTotal(beamIx) + nCurrentParticles;
-
-
                         end
-
-                        currentBixel = currentBixel + 1;
-
-                    end
                 end
 
                 bixelNotMeetingParticleQuota = bixelNotMeetingParticleQuota + (stf(beamIx).totalNumOfBixels-cutNumOfBixel);
@@ -1855,12 +1915,12 @@ classdef matRad_TopasMCEngine < DoseEngines.matRad_MonteCarloEngineAbstract
                         fprintf(fileID,' mm\n');
 
                     case 'virtualGaussian'
-                        fprintf(fileID,'s:Tf/Beam/EnergySpread/Function = "Step"\n');
-                        fprintf(fileID,'dv:Tf/Beam/EnergySpread/Times = Tf/Beam/Spot/Times ms\n');
-                        fprintf(fileID,'uv:Tf/Beam/EnergySpread/Values = %i ', cutNumOfBixel);
-                        fprintf(fileID,num2str([dataTOPAS.energySpread]));
-                        fprintf(fileID,'\n');
-
+                        fprintf(fileID,'d:Sim/GantryAngle = %f deg\n',stf(beamIx).gantryAngle); %just one beam angle for now
+                        fprintf(fileID,'d:Sim/CouchAngle = %f deg\n',stf(beamIx).couchAngle);
+                        fprintf(fileID,'d:Ge/BeamSpot/TransX = %d mm\n',dataTOPAS.posX);
+                        fprintf(fileID,'d:Ge/BeamSpot/TransY = %d mm\n',dataTOPAS.posY);
+                        fprintf(fileID,'i:So/PencilBeam/NumberOfHistoriesInRun = %i\n',dataTOPAS.current);
+                        fprintf(fileID,'d:So/PencilBeam/BeamEnergy = %d MeV\n',dataTOPAS.energy);
                         if isfield([stf.ray], 'collimation')
                             % Use field width for now
                             fprintf(fileID,'d:So/PencilBeam/BeamPositionSpreadX = %d mm\n', stf(1).ray.collimation.fieldWidth);
@@ -2031,7 +2091,8 @@ classdef matRad_TopasMCEngine < DoseEngines.matRad_MonteCarloEngineAbstract
                         fprintf(fileID,'%f ', zeros(size([1:leafTimes])));
                         fprintf(fileID,' mm\n\n');
                     end
-
+               switch obj.beamProfile
+                   case 'phasespace'
                     fprintf(fileID, 's:Tf/Phasespace/NumberOfHistoriesInRun/Function  = "Step" \n');
                     fprintf(fileID, 'dv:Tf/Phasespace/NumberOfHistoriesInRun/Times = %i ', leafTimes);
                     fprintf(fileID,'%i ',[1:leafTimes]*10);
@@ -2039,6 +2100,7 @@ classdef matRad_TopasMCEngine < DoseEngines.matRad_MonteCarloEngineAbstract
                     fprintf(fileID, 'iv:Tf/Phasespace/NumberOfHistoriesInRun/Values = %i ', leafTimes);
                     fprintf(fileID,'%i ',[dataTOPAS(:).current]);
                     fprintf(fileID,' \n');
+               end
 
                 end
 
